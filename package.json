@@ -1,0 +1,26 @@
+{
+  "name": "db-model",
+  "version": "1.0.0",
+  "description": "web数据建模工具",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zdzwsz/db-model.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zdzwsz/db-model/issues"
+  },
+  "homepage": "https://github.com/zdzwsz/db-model#readme",
+  "dependencies": {
+    "@material-ui/core": "^3.7.1",
+    "next": "^7.0.2",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0"
+  }
+}
