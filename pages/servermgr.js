@@ -34,20 +34,48 @@ export default class servermgr extends React.Component {
     };
 
     state = {
-        servers : [
-            {serverName:"local",ip:"127.0.0.1",port:"8080"},
-            {serverName:"local1",ip:"127.0.0.1",port:"8080"},
-            {serverName:"local2",ip:"127.0.0.1",port:"8080"}
-        ]
+        servers: [
+            { name: "local", ip: "127.0.0.1", port: "8080" },
+            { name: "local1", ip: "127.0.0.1", port: "8080" },
+            { name: "local2", ip: "127.0.0.1", port: "8080" }
+        ],
+        name: "",
+        ip: "",
+        port: ""
     };
 
+    componentWillMount() {
+        let jsonString = window.localStorage.getItem("servers");
+        console.log(jsonString);
+        let jsonObjects = []
+        if (jsonString) {
+            jsonObjects = JSON.parse(jsonString);
+        }
+        if (Array.isArray(jsonObjects)) {
+            this.setState({servers:jsonObjects}); 
+        }
+    }
 
     deleteServer(i) {
         console.log(i);
-        this.state.servers.splice(i,1);
-        this.setState({servers:this.state.servers});
+        this.state.servers.splice(i, 1);
+        this.setState({ servers: this.state.servers });
+        localStorage.setItem("servers", JSON.stringify(this.state.servers));
     };
 
+    handleChange = event => {
+        this.setState({ [event.target.name]: event.target.value });
+    };
+
+    saveServer(){
+       let newServer = {name:this.state.name,ip:this.state.ip,port:this.state.port};
+       this.state.servers.push(newServer);
+       this.setState({ servers: this.state.servers });
+       this.state.name = "";
+       this.state.ip = "";
+       this.state.port = "";
+       localStorage.setItem("servers", JSON.stringify(this.state.servers));
+    };
 
     render() {
         let _this = this;
@@ -57,30 +85,33 @@ export default class servermgr extends React.Component {
                 <Grid item xs={12} style={classes.GridStyle}>
                     <Paper style={classes.PaperStyle}>
                         <TextField
-                            id="serverName"
+                            id="name"
                             label="服务名称"
-                            name="serverName"
+                            name="name"
                             margin="normal"
                             variant="outlined"
                             style={{ margin: 2 }}
+                            onChange={this.handleChange} value={this.state.name}
                         />
                         <TextField
-                            id="serverIp"
+                            id="ip"
                             label="服务IP"
-                            name="serverIp"
+                            name="ip"
                             margin="normal"
                             variant="outlined"
                             style={{ margin: 2 }}
+                            onChange={this.handleChange} value={this.state.ip}
                         />
                         <TextField
-                            id="serverPort"
+                            id="port"
                             label="服务端口"
-                            name="serverPort"
+                            name="port"
                             margin="normal"
                             variant="outlined"
                             style={{ margin: 2 }}
+                            onChange={this.handleChange} value={this.state.port}
                         />
-                        <Button variant="contained" component="span" type="button" style={{ margin: 2, height: 54 }}>保存</Button>
+                        <Button variant="contained" component="span" type="button" onClick={this.saveServer.bind(this)} style={{ margin: 2, height: 54 }}>保存</Button>
                         <Button variant="contained" component="span" type="button" onClick={this.handleIndex} style={{ margin: 2, height: 54 }}>返回</Button>
                     </Paper>
                 </Grid>
@@ -97,16 +128,16 @@ export default class servermgr extends React.Component {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {this.state.servers.map(function(row,i) {
+                                {this.state.servers.map(function (row, i) {
                                     return (
-                                        <TableRow key={i+1}>
+                                        <TableRow key={i + 1}>
                                             <TableCell>
-                                               {i+1}
+                                                {i + 1}
                                             </TableCell>
-                                            <TableCell >{row.serverName}</TableCell>
+                                            <TableCell >{row.name}</TableCell>
                                             <TableCell >{row.ip}</TableCell>
                                             <TableCell >{row.port}</TableCell>
-                                            <TableCell ><Button variant="contained" component="span" type="button" onClick={_this.deleteServer.bind(this,i)}>删除</Button></TableCell>
+                                            <TableCell ><Button variant="contained" component="span" type="button" onClick={_this.deleteServer.bind(this, i)}>删除</Button></TableCell>
                                         </TableRow>
                                     );
                                 })}

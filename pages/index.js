@@ -33,6 +33,15 @@ export default class Index extends React.Component {
         super(props);
     }
 
+    static getItem(){
+        if(window){
+            return window.localStorage.getItem("servers");
+        }else{
+            return null;
+        }
+
+    }
+
     state = {
         server: '',
         userName: '',
@@ -40,7 +49,8 @@ export default class Index extends React.Component {
         remember: false,
         errorMsg: "",
         redirectToReferrer: false,
-        isTip:false
+        isTip:false,
+        servers:[]
     };
 
     handleServerMgr = () => {
@@ -54,6 +64,18 @@ export default class Index extends React.Component {
     handleClose = () => {
         this.setState({ isTip: false });
     };
+
+    componentWillMount() {
+        let jsonString = Index.getItem("servers");
+        console.log(jsonString);
+        let jsonObjects = []
+        if (jsonString) {
+            jsonObjects = JSON.parse(jsonString);
+        }
+        if (Array.isArray(jsonObjects)) {
+            this.setState({servers:jsonObjects}); 
+        }
+    }
 
     login = event => {
         let _this = this;
@@ -96,8 +118,12 @@ export default class Index extends React.Component {
                             <FormControl margin="normal" fullWidth>
                                 <InputLabel htmlFor="server">服务器地址</InputLabel>
                                 <Select id="server" name="server" onChange={this.handleChange} value={this.state.server}>
-                                    <MenuItem value="182.61.11.222:8080">182.61.11.222</MenuItem>
-                                    <MenuItem value="localhost:8080">127.0.0.1</MenuItem>
+                                    {this.state.servers.map(function (row, i) {
+                                        let url = row.ip+":"+row.port
+                                    return (
+                                        <MenuItem value={url}>{row.name}</MenuItem>
+                                    );
+                                })}
                                 </Select>
                             </FormControl>
                             <FormControl margin="normal" fullWidth>
@@ -132,3 +158,5 @@ export default class Index extends React.Component {
         )
     }
 }
+
+
