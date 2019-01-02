@@ -16,6 +16,8 @@ import fetch from 'isomorphic-unfetch';
 import Snackbar from '@material-ui/core/Snackbar';
 import Router from 'next/router';
 
+let localStorage = require("../util/Storage").localStorage();
+
 let classes = {
     GridStyle: {
         display: 'flex', alignItems: 'center', flexDirection: 'column'
@@ -34,12 +36,7 @@ export default class Index extends React.Component {
     }
 
     static getItem(){
-        if(window){
-            return window.localStorage.getItem("servers");
-        }else{
-            return null;
-        }
-
+        return localStorage.getItem("servers")
     }
 
     state = {
@@ -67,7 +64,6 @@ export default class Index extends React.Component {
 
     componentWillMount() {
         let jsonString = Index.getItem("servers");
-        console.log(jsonString);
         let jsonObjects = []
         if (jsonString) {
             jsonObjects = JSON.parse(jsonString);
@@ -92,7 +88,7 @@ export default class Index extends React.Component {
             return response.json();
         }).then(function (json) {
             if (json.success) {
-              sessionStorage.setItem("user", json.token);
+              sessionStorage.setItem("user", JSON.stringify({name:_this.state.userName,token:json.token}));
               Router.push("/main");
             } else {
                 _this.setState({ errorMsg: json.message, isTip:true})
@@ -121,7 +117,7 @@ export default class Index extends React.Component {
                                     {this.state.servers.map(function (row, i) {
                                         let url = row.ip+":"+row.port
                                     return (
-                                        <MenuItem value={url}>{row.name}</MenuItem>
+                                        <MenuItem key={i} value={url}>{row.name}</MenuItem>
                                     );
                                 })}
                                 </Select>
