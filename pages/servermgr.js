@@ -9,7 +9,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Router from 'next/router';
-import Index from '.';
+let localStorage = require("../util/Storage").localStorage();
 
 let classes = {
     GridStyle: {
@@ -35,9 +35,6 @@ export default class servermgr extends React.Component {
 
     state = {
         servers: [
-            { name: "local", ip: "127.0.0.1", port: "8080" },
-            { name: "local1", ip: "127.0.0.1", port: "8080" },
-            { name: "local2", ip: "127.0.0.1", port: "8080" }
         ],
         name: "",
         ip: "",
@@ -45,7 +42,7 @@ export default class servermgr extends React.Component {
     };
 
     componentWillMount() {
-        let jsonString = window.localStorage.getItem("servers");
+        let jsonString = localStorage.getItem("servers");
         console.log(jsonString);
         let jsonObjects = []
         if (jsonString) {
