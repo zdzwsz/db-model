@@ -15,6 +15,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import AddIcon from '@material-ui/icons/AddCircle';
 import StorageIcon from '@material-ui/icons/Storage';
+import Divider from '@material-ui/core/Divider';
 
 const classes = {
     chipClass: {
@@ -92,6 +93,7 @@ export default class main extends React.Component {
                             <Typography variant="h5" component="h2">
                             <Chip icon={<StorageIcon />} label="petshop"  color="primary" variant="outlined" style={classes.chipClass} onDelete={this.handleDelete}/>
                             </Typography>
+                            <Divider/>
                             <Typography component="p">
                                  实体<br/>
                                 <Chip label="pet:宠物" onClick={this.handleClick} style={classes.chipClass} onDelete={this.handleDelete} />
@@ -116,6 +118,7 @@ export default class main extends React.Component {
                                 <Chip label="新增服务 " variant="outlined" color="primary" style={classes.chipClass} onDelete={this.handleDelete}
                                     deleteIcon={<AddIcon />} />
                             </Typography>
+                            <Divider/>
                             <Typography component="p">
                             实体<br/>
                                 <Chip label="新增实体" style={classes.chipClass} onDelete={this.handleDelete}
