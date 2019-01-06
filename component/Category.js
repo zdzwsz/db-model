@@ -4,22 +4,23 @@ import AddIcon from '@material-ui/icons/AddCircle';
 import StorageIcon from '@material-ui/icons/Storage';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
+import Switch from '@material-ui/core/Switch';
 
 export default class Category extends React.Component {
     constructor(props) {
         super(props);
-        
         if (props.label && props.label != "") {
-            this.state.status ='old';
+            this.state.status = 'old';
             this.state.label = props.label
+            this.state.disabled = props.disabled
         }
-
         this.state.name = "";
     }
 
     state = {
         status: 'new',
-        label :''
+        label: '',
+        disabled:false
     };
 
     handleClick() {
@@ -40,33 +41,50 @@ export default class Category extends React.Component {
 
     handleDelete() {
         if (this.props.onDelete) {
-            this.props.onSave(this.state.label);
+            this.props.onDelete(this.state.label);
         }
     }
 
     onSave() {
-        if(this.state.name ==""){
+        if (this.state.name == "") {
             this.cancelService();
             return;
         }
-        if (this.props.onSave) {
-            this.props.onSave(this.state.name);
+        if (this.props.onAddCategory) {
+            this.props.onAddCategory(this.state.name);
+            this.state.name = "";
+            this.setState({ status: 'new' });
         } else {
             this.state.label = this.state.name;
             this.state.name = "";
             this.setState({ status: 'old' });
         }
+        
     }
+
+    handleSwitchChange = event => {
+        this.setState({ [event.target.name]: event.target.checked });
+        if (this.props.onChange) {
+            this.props.onChange(event.target.checked);
+        }
+    };
+
 
     render() {
         if (this.state.status == 'new') {
             return (
-                <Chip label="新增服务" style={{ margin: 4 }} onDelete={this.editService.bind(this)} color="primary" variant="outlined" deleteIcon={<AddIcon />} />
+                <div>
+                    <Chip label="新增服务" style={{ margin: 4 }} onDelete={this.editService.bind(this)} color="primary" variant="outlined" deleteIcon={<AddIcon />} />
+                </div>
             )
         } else if (this.state.status == 'old') {
             return (
-                <Chip icon={<StorageIcon />} style={{ margin: 4 }} label={this.state.label} color="primary" variant="outlined"
-                    onDelete={this.handleDelete.bind(this)} />
+                <div>
+                    <Chip icon={<StorageIcon />} style={{ margin: 4 }} label={this.state.label} color="primary" variant="outlined" onDelete={this.handleDelete.bind(this)} />
+                    <div style={{ float: 'right' }}>
+                        <Switch value="disabled" name ="disabled" checked={this.state.disabled} onChange={this.handleSwitchChange} />停用/启用
+                    </div>
+                </div>
             )
         } else if (this.state.status == 'edit') {
             return (
