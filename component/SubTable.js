@@ -11,6 +11,8 @@ import Switch from '@material-ui/core/Switch';
 import FieldEdit from '../component/FieldEdit';
 import SelectEdit from '../component/SelectEdit';
 
+const buttonValue = ['隐藏子表行','显示子表行']
+
 export default class SubTable extends React.Component {
     constructor(props) {
         super(props);
@@ -20,6 +22,9 @@ export default class SubTable extends React.Component {
         this.state.detail = props.detail;
         this.state.type = props.type;
         this.state.relation = props.relation;
+        this.state.hide = false;
+        this.state.buttonDisabled = false;
+        this.state.buttonValue = 0;
     }
 
     onChangeKey(i, name, value) {
@@ -73,6 +78,16 @@ export default class SubTable extends React.Component {
         }
     }
 
+    hideOrShowRow(){
+        let status = this.state.hide = !this.state.hide;
+        this.state.relation.fields.map(function(field,i){
+            field.hide = status;
+        })
+        this.state.buttonDisabled = status;
+        this.state.buttonValue = (this.state.buttonValue + 1)%2
+        this.setState({relation:this.state.relation});
+    }
+
     render() {
         let _this = this;
         return (
@@ -91,14 +106,14 @@ export default class SubTable extends React.Component {
                         <TableCell align="center" padding="none" style={{ width: 150 }}>
                             <SelectEdit id={this.state.id} name="type" onChange={this.onChangeKey.bind(this)} value={this.state.type} />
                         </TableCell>
-                        <TableCell colSpan={4} padding="none" align ="right" style={{ width: 330 }}>
-                            <Button onClick={this.handleAddRow.bind(this)} variant="outlined" color="secondary" size="small" style={{ margin: 2 }}>新增子表行</Button>
-                            <Button onClick={this.handleDeleteRow.bind(this)} variant="outlined" color="secondary" size="small" style={{ margin: 2 }}>删除子表行</Button>
-                            <Button variant="outlined" color="secondary" size="small" style={{ margin: 2 }}>隐藏子表行</Button>
+                        <TableCell colSpan={4} padding="none" align ="right" style={{ width: 230 }}>
+                            <Button disabled={this.state.buttonDisabled} onClick={this.handleAddRow.bind(this)} variant="outlined" color="secondary" size="small" style={{ margin: 2 }}>新增子表行</Button>
+                            <Button disabled={this.state.buttonDisabled} onClick={this.handleDeleteRow.bind(this)} variant="outlined" color="secondary" size="small" style={{ margin: 2 }}>删除子表行</Button>
+                            <Button onClick={this.hideOrShowRow.bind(this)} variant="outlined" color="secondary" size="small" style={{ margin: 2 }}>{buttonValue[this.state.buttonValue]}</Button>
                         </TableCell>
                     </TableRow>
                     {this.state.relation.fields.map(function (field, i) {
-                        if (field.delete == true) {
+                        if (field.delete == true || field.hide == true) {
                         } else {
                             return (
                                 <TableRow key={i} style={{backgroundColor:'#F0F6F6'}}>

@@ -30,7 +30,13 @@ let classes = {
 export default class entityedit extends React.Component {
     constructor(props) {
         super(props);
+      
     }
+
+    static async getInitialProps({query}) {
+        console.log(query);
+        return {}
+     }
 
     state = {
         entity:
@@ -89,7 +95,7 @@ export default class entityedit extends React.Component {
         this.state.entity.fields[i].relation.fields[j].select = checked;
     }
     addSubTableRow(i) {
-        console.log(this.state.entity.fields[i].relation.fields.length)
+        //console.log(this.state.entity.fields[i].relation.fields.length)
         let fields = this.state.entity.fields[i].relation.fields;
         fields.push({ isnew: true, name: '', detail: '', type: '', length: 0, dot: 0, notnull: false, isprimary: false });
         this.setState({ entity: this.state.entity });
@@ -106,7 +112,7 @@ export default class entityedit extends React.Component {
     }
 
     onChangeSubTableKey(i,j, name, value) {
-        console.log(i+":"+j+":"+name+":"+value);
+        //console.log(i+":"+j+":"+name+":"+value);
         let field = this.state.entity.fields[i].relation.fields[j];
         field[name] = value;
         if (name == "type") {

@@ -91,7 +91,10 @@ export default class main extends React.Component {
     }
 
     newEntity(name){
-        Router.push("/entityedit");
+        Router.push({
+            pathname:"/entityedit",
+            query:{'name':name}
+        });
     }
 
     render() {
@@ -105,7 +108,7 @@ export default class main extends React.Component {
                                 <CardContent>
                                     <Category label={service.name} disabled={service.disabled} onDelete={_this.onDeleteCategory.bind(_this)} />
                                     <Typography color="textSecondary">服务实体：</Typography>
-                                    <Chip label="新增实体" style={classes.chipClass} onDelete={_this.newEntity.bind(_this,service.name)} onClick={_this.newEntity.bind(_this,service.name)}
+                                    <Chip label="新增实体" style={classes.chipClass} onDelete={_this.newEntity.bind(_this,service.name,'new')} onClick={_this.newEntity.bind(_this,service.name,'new')}
                                         deleteIcon={<AddIcon />} />
                                     {service.entitys.map(function (entity, j) {
                                         let name = entity.name + ":" + entity.detail;
