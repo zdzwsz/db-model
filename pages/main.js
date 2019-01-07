@@ -76,24 +76,25 @@ export default class main extends React.Component {
         this.setState({ services: this.state.services });
     }
 
-    onDeleteCategory(name){
+    onDeleteCategory(name) {
         let services = this.state.services;
-        for(let i =0;i<services.length;i++){
-            if(services[i].name ===name){
-                if(services[i].entitys.length==0 && services[i].apis.length==0){
-                    services.splice(i,1);
-                }else{
-                    this.setState({ errorMsg: '先清空实体和API', isTip:true})
+        for (let i = 0; i < services.length; i++) {
+            if (services[i].name === name) {
+                if (services[i].entitys.length == 0 && services[i].apis.length == 0) {
+                    services.splice(i, 1);
+                } else {
+                    this.setState({ errorMsg: '先清空实体和API', isTip: true })
                 }
             }
         }
-        this.setState({ services: services});
+        this.setState({ services: services });
     }
 
-    newEntity(name){
+    newEntity(name) {
         Router.push({
-            pathname:"/entityedit",
-            query:{'name':name}
+            pathname: "/entityedit",
+            query: { 'name': name },
+            asPath: "/entityedit"
         });
     }
 
@@ -108,7 +109,7 @@ export default class main extends React.Component {
                                 <CardContent>
                                     <Category label={service.name} disabled={service.disabled} onDelete={_this.onDeleteCategory.bind(_this)} />
                                     <Typography color="textSecondary">服务实体：</Typography>
-                                    <Chip label="新增实体" style={classes.chipClass} onDelete={_this.newEntity.bind(_this,service.name,'new')} onClick={_this.newEntity.bind(_this,service.name,'new')}
+                                    <Chip label="新增实体" style={classes.chipClass} onDelete={_this.newEntity.bind(_this, service.name, 'new')} onClick={_this.newEntity.bind(_this, service.name, 'new')}
                                         deleteIcon={<AddIcon />} />
                                     {service.entitys.map(function (entity, j) {
                                         let name = entity.name + ":" + entity.detail;
@@ -137,23 +138,27 @@ export default class main extends React.Component {
                         <CardContent>
                             <Category onAddCategory={_this.onAddCategory.bind(_this)} onDelete={_this.onDeleteCategory.bind(_this)} />
                             <Typography color="textSecondary">服务实体：</Typography>
-                            <Chip label="新增实体" style={classes.chipClass} onDelete={this.handleDelete}
+                            <Chip label="新增实体" style={classes.chipClass} onDelete={() => {
+                                this.setState({ isTip: true,errorMsg:'请先增加服务' });
+                            }}
                                 deleteIcon={<AddIcon />} />
                             <Typography color="textSecondary">服务 API：</Typography>
-                            <Chip label="新增 API" style={classes.chipClass} onDelete={this.handleDelete}
+                            <Chip label="新增 API" style={classes.chipClass} onDelete={() => {
+                                 this.setState({ isTip: true,errorMsg:'请先增加服务' });
+                            }}
                                 deleteIcon={<AddIcon />} />
                         </CardContent>
                     </Card>
                 </Grid>
                 <Snackbar
-                            anchorOrigin={{ vertical: 'top', horizontal: 'center'  }}
-                            open={this.state.isTip}
-                            onClose={this.handleClose}
-                            ContentProps={{
-                                'aria-describedby': 'message-id',
-                            }}
-                            message={<span id="message-id">{this.state.errorMsg}</span>}
-                        />
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+                    open={this.state.isTip}
+                    onClose={this.handleClose}
+                    ContentProps={{
+                        'aria-describedby': 'message-id',
+                    }}
+                    message={<span id="message-id">{this.state.errorMsg}</span>}
+                />
             </Layout>
         )
     }

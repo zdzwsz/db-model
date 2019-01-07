@@ -16,6 +16,7 @@ import FieldEdit from '../component/FieldEdit';
 import SelectEdit from '../component/SelectEdit';
 import FormDialog from '../component/FormDialog';
 import SubTable from '../component/SubTable';
+import Snackbar from '@material-ui/core/Snackbar';
 
 
 let classes = {
@@ -27,38 +28,36 @@ let classes = {
     }
 }
 
+const content='请输入服务名和表名，不能有特殊符号：@#￥%……&,默认服务名等于表名！'
+
 export default class entityedit extends React.Component {
     constructor(props) {
         super(props);
-      
+        console.log(props.query)
+        this.state = {
+            name:"",
+            entity:
+            {
+                tableName: "",
+                fields: [
+                    
+                ]
+            },
+            dialog: {
+                open: false,
+                content: content,
+                title: "",
+            },
+            isTip:false,
+            errorMsg:""
+        };
     }
 
     static async getInitialProps({query}) {
-        console.log(query);
-        return {}
+        return {query}
      }
 
-    state = {
-        entity:
-        {
-            name: "",
-            fields: [
-                { name: 'id', detail: '主键', type: 'int', length: 8, dot: 0, notnull: true, isprimary: true },
-                {
-                    name: 'other', detail: '子表', type: 'table', length: 0, dot: 0, notnull: true, isprimary: true, "relation": {
-                        "fields": [
-                           
-                        ]
-                    }
-                }
-            ]
-        },
-        dialog: {
-            open: false,
-            content: '请输入表名，不能有特殊符号：@#￥%……&',
-            title: "",
-        }
-    };
+    
 
     addRow() {
         let fields = this.state.entity.fields;
@@ -183,8 +182,8 @@ export default class entityedit extends React.Component {
     }
 
     prepareSaveEntity() {
-        if (this.state.entity.name == "" || this.state.entity.name == null) {
-            this.showDialog();
+        if (this.state.name == "" || this.state.name == null) {
+            this.setState({isTip:true,errorMsg:'请设置实体名/表名,再保存！'});
         } else {
             this.saveEntity()
         }
@@ -194,10 +193,11 @@ export default class entityedit extends React.Component {
         console.log(this.state.entity);
     }
 
-    okDialog(tableName) {
-        this.state.entity.name = tableName;
+    okDialog(name,tableName) {
+        this.state.name = name;
+        this.state.entity.tableName = tableName;
         this.state.dialog.open = false
-        this.saveEntity()
+        //this.saveEntity()
     }
 
     showDialog() {
@@ -211,6 +211,7 @@ export default class entityedit extends React.Component {
                 <Grid item xs={12} style={classes.GridStyle}>
                     <Paper style={classes.PaperStyle}>
                         <div style={{ width: 950 }}>
+                            <Button onClick={this.showDialog.bind(this)} variant="outlined" color="secondary" style={{ margin: 2 }}>设置实体名/表名</Button>
                             <Button onClick={this.addRow.bind(this)} variant="outlined" color="secondary" style={{ margin: 2 }}>新增行</Button>
                             <Button onClick={this.deleteRow.bind(this)} variant="outlined" color="secondary" style={{ margin: 2 }}>删除行</Button>
                             <Button onClick={this.prepareSaveEntity.bind(this)} variant="outlined" color="secondary" style={{ margin: 2 }}>保存</Button>
@@ -223,8 +224,8 @@ export default class entityedit extends React.Component {
                                     <TableCell style={{ width: 140 }} padding="none">名称</TableCell>
                                     <TableCell align="center" style={{ width: 200 }} padding="none">注释</TableCell>
                                     <TableCell align="center" style={{ width: 150 }} padding="none">类型</TableCell>
-                                    <TableCell align="center" style={{ width: 100 }} padding="none">长度</TableCell>
-                                    <TableCell align="center" style={{ width: 80 }} padding="none">小数点</TableCell>
+                                    <TableCell align="center" style={{ width: 120 }} padding="none">长度</TableCell>
+                                    <TableCell align="center" style={{ width: 90 }} padding="none">小数点</TableCell>
                                     <TableCell align="center" style={{ width: 70 }} padding="none">不许空</TableCell>
                                     <TableCell align="center" style={{ width: 70 }} padding="none">主键</TableCell>
                                 </TableRow>
@@ -283,13 +284,25 @@ export default class entityedit extends React.Component {
                         </Table>
                     </Paper>
                     <FormDialog
-                        value={this.state.entity.name}
+                        name = {this.state.name}
+                        tableName={this.state.entity.tableName}
                         open={this.state.dialog.open}
                         cancel={() => { this.state.dialog.open = false }}
                         ok={this.okDialog.bind(this)}
                         title={this.state.dialog.title}
                         content={this.state.dialog.content}
                     />
+                     <Snackbar
+                            anchorOrigin={{ vertical: 'top', horizontal: 'center'  }}
+                            open={this.state.isTip}
+                            onClose={() => {
+                                this.setState({ isTip: false });
+                            }}
+                            ContentProps={{
+                                'aria-describedby': 'message-id',
+                            }}
+                            message={<span id="message-id">{this.state.errorMsg}</span>}
+                        />
                 </Grid>
             </Layout>
 

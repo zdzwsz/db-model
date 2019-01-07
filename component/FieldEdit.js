@@ -9,7 +9,6 @@ export default class FieldEdit extends React.Component {
         super(props);
         this.state = {
             status: 'view',
-            
         };
         this.state.id = props.id;
         this.state.name = props.name;
@@ -41,7 +40,7 @@ export default class FieldEdit extends React.Component {
         if (this.state.status == 'view') {
             return (
                 <div onClick={this.editStatus.bind(this)} style={{height:35,padding:4}}>
-                <Typography style={{fontSize: 14,marginTop: 4}} >
+                <Typography style={{fontSize: 14,marginTop: 6}} >
                     {this.state.value}
                 </Typography>
                 </div>

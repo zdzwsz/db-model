@@ -106,7 +106,7 @@ export default class SubTable extends React.Component {
                         <TableCell align="center" padding="none" style={{ width: 150 }}>
                             <SelectEdit id={this.state.id} name="type" onChange={this.onChangeKey.bind(this)} value={this.state.type} />
                         </TableCell>
-                        <TableCell colSpan={4} padding="none" align ="right" style={{ width: 230 }}>
+                        <TableCell colSpan={4} padding="none" align ="right" style={{ width: 380 }}>
                             <Button disabled={this.state.buttonDisabled} onClick={this.handleAddRow.bind(this)} variant="outlined" color="secondary" size="small" style={{ margin: 2 }}>新增子表行</Button>
                             <Button disabled={this.state.buttonDisabled} onClick={this.handleDeleteRow.bind(this)} variant="outlined" color="secondary" size="small" style={{ margin: 2 }}>删除子表行</Button>
                             <Button onClick={this.hideOrShowRow.bind(this)} variant="outlined" color="secondary" size="small" style={{ margin: 2 }}>{buttonValue[this.state.buttonValue]}</Button>

@@ -11,7 +11,8 @@ export default class FormDialog extends React.Component {
   constructor(props) {
         super(props);
         this.state={open : false}
-        this.state.value = props.value;
+        this.state.tableName = props.tableName;
+        this.state.name = props.name;
         this.state.title = props.title;
         this.state.content = props.content;
         
@@ -27,18 +28,18 @@ export default class FormDialog extends React.Component {
   handleOk= () => {
     this.setState({ open: false });
     if(this.props.ok){
-        this.props.ok(this.state.value);
+        this.props.ok(this.state.name,this.state.tableName);
     }
   };
 
   handleChange(event) {
-    this.setState({ value: event.target.value })
+    this.setState({ [event.target.name]: event.target.value })
   }
 
   componentWillReceiveProps(nextProps) {
     this.setState({
         open: nextProps.open,
-        value:nextProps.value
+        tableName:nextProps.tableName
     });
 }
 
@@ -57,11 +58,19 @@ export default class FormDialog extends React.Component {
             <TextField
               autoFocus
               margin="dense"
-              id="name"
-              label="请输入："
+              name="name"
+              label="请输入服务名："
               fullWidth
               onChange = {this.handleChange.bind(this)}
-              value = {this.state.value}
+              value = {this.state.name}
+            /> 
+            <TextField
+              margin="dense"
+              name="tableName"
+              label="请输入表名："
+              fullWidth
+              onChange = {this.handleChange.bind(this)}
+              value = {this.state.tableName}
             /> 
           </DialogContent>
           <DialogActions>
