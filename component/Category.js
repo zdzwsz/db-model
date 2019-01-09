@@ -63,11 +63,16 @@ export default class Category extends React.Component {
     }
 
     handleSwitchChange = event => {
-        this.setState({ [event.target.name]: event.target.checked });
         if (this.props.onChange) {
-            this.props.onChange(event.target.checked);
+            this.props.onChange(this.state.label,event.target.checked);
         }
     };
+
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            disabled: nextProps.disabled
+        });
+    }
 
 
     render() {
