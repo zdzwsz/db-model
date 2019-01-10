@@ -30,6 +30,7 @@ export default class navigation extends React.Component {
     }
 
     handleLogout = () => {
+        console.log("logout")
         Router.push("/");
     };
 

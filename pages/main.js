@@ -9,9 +9,7 @@ import AddIcon from '@material-ui/icons/AddCircle';
 import Divider from '@material-ui/core/Divider';
 import Layout from './layout';
 import Category from '../component/Category';
-import Snackbar from '@material-ui/core/Snackbar';
-import ModalTag from '../component/ModalTag';
-import Modal from '../component/Modal';
+import {Modal,ModalTag} from '../component/Modal';
 
 
 const classes = {
@@ -120,10 +118,13 @@ export default class main extends React.Component {
 
     }
 
-    newEntity(name) {
+    editEntity(category,entityName) {
+        if(entityName=="new"){
+            entityName="";
+        }
         Router.push({
             pathname: "/entityedit",
-            query: { 'name': name },
+            query: { 'category': category, entityName:entityName},
             asPath: "/entityedit"
         });
     }
@@ -160,13 +161,13 @@ export default class main extends React.Component {
                                 <CardContent>
                                     <Category label={service.name} disabled={service.disabled} onDelete={_this.onDeleteCategory.bind(_this)} onChange={_this.onChangeCategory.bind(_this)} />
                                     <Typography color="textSecondary">服务实体：</Typography>
-                                    <Chip label="新增实体" style={classes.chipClass} onDelete={_this.newEntity.bind(_this, service.name, 'new')} onClick={_this.newEntity.bind(_this, service.name, 'new')}
+                                    <Chip label="新增实体" style={classes.chipClass} onDelete={_this.editEntity.bind(_this, service.name, 'new')} onClick={_this.editEntity.bind(_this, service.name, 'new')}
                                         deleteIcon={<AddIcon />} />
                                     {service.entitys.map(function (entity, j) {
                                         let name = entity.name + ":" + entity.detail;
                                         let key = i + ":" + j;
                                         return (
-                                            <Chip key={key} label={name} onClick={_this.handleClick} style={classes.chipClass} onDelete={_this.handleDeleteEntity.bind(_this, service.name, entity.name)} />
+                                            <Chip key={key} label={name} onClick={_this.editEntity.bind(_this, service.name, entity.name)} style={classes.chipClass} onDelete={_this.handleDeleteEntity.bind(_this, service.name, entity.name)} />
                                         )
                                     })}
                                     <Typography color="textSecondary">服务 API：</Typography>
@@ -190,26 +191,17 @@ export default class main extends React.Component {
                             <Category onAddCategory={_this.onAddCategory.bind(_this)} onDelete={_this.onDeleteCategory.bind(_this)} />
                             <Typography color="textSecondary">服务实体：</Typography>
                             <Chip label="新增实体" style={classes.chipClass} onDelete={() => {
-                                this.setState({ isTip: true, errorMsg: '请先增加服务' });
+                                this.modal.tip("请先增加服务后，再新增实体！");
                             }}
                                 deleteIcon={<AddIcon />} />
                             <Typography color="textSecondary">服务 API：</Typography>
                             <Chip label="新增 API" style={classes.chipClass} onDelete={() => {
-                                this.setState({ isTip: true, errorMsg: '请先增加服务' });
+                                this.modal.tip("请先增加服务后，再新增 API！");
                             }}
                                 deleteIcon={<AddIcon />} />
                         </CardContent>
                     </Card>
                 </Grid>
-                <Snackbar
-                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-                    open={this.state.isTip}
-                    onClose={this.handleClose}
-                    ContentProps={{
-                        'aria-describedby': 'message-id',
-                    }}
-                    message={<span id="message-id">{this.state.errorMsg}</span>}
-                />
                 <ModalTag config={this.modal.getConfig()} />
             </Layout>
         )

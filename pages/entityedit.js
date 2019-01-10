@@ -14,9 +14,9 @@ import Checkbox from '@material-ui/core/Checkbox';
 import Switch from '@material-ui/core/Switch';
 import FieldEdit from '../component/FieldEdit';
 import SelectEdit from '../component/SelectEdit';
-import FormDialog from '../component/FormDialog';
 import SubTable from '../component/SubTable';
-import Snackbar from '@material-ui/core/Snackbar';
+import {Modal,ModalTag} from '../component/Modal';
+
 
 
 let classes = {
@@ -33,9 +33,12 @@ const content='请输入服务名和表名，不能有特殊符号：@#￥%…�
 export default class entityedit extends React.Component {
     constructor(props) {
         super(props);
-        console.log(props.query)
+        //console.log(props.query)
+        this.category = props.query.category;
+        let entityName = props.query.entityName||"";
+
         this.state = {
-            name:"",
+            name:entityName,
             entity:
             {
                 tableName: "",
@@ -51,6 +54,7 @@ export default class entityedit extends React.Component {
             isTip:false,
             errorMsg:""
         };
+        this.modal = Modal.createModal(this);
     }
 
     static async getInitialProps({query}) {
@@ -75,6 +79,7 @@ export default class entityedit extends React.Component {
     };
 
     deleteRow() {
+        
         let fields = this.state.entity.fields;
         for (let i = fields.length - 1; i > -1; i--) {
             if (fields[i].select == true) {
@@ -183,7 +188,7 @@ export default class entityedit extends React.Component {
 
     prepareSaveEntity() {
         if (this.state.name == "" || this.state.name == null) {
-            this.setState({isTip:true,errorMsg:'请设置实体名/表名,再保存！'});
+            this.modal.alert("请先设置实体名/表名,再保存实体！");
         } else {
             this.saveEntity()
         }
@@ -201,7 +206,15 @@ export default class entityedit extends React.Component {
     }
 
     showDialog() {
-        this.setState({ dialog: { open: true } });
+        //this.setState({ dialog: { open: true } });
+        let _this = this;
+        let prompt = this.modal.prompt(content,
+            [{label:'请输入实体名',value:this.state.name},
+             {label:'请输入表名',value:this.state.entity.tableName}]);
+        prompt.then(function(values){
+            _this.state.name = values[0].value;
+            _this.state.entity.tableName = values[1].value;
+        })
     }
 
     render() {
@@ -283,26 +296,7 @@ export default class entityedit extends React.Component {
                             </TableBody>
                         </Table>
                     </Paper>
-                    <FormDialog
-                        name = {this.state.name}
-                        tableName={this.state.entity.tableName}
-                        open={this.state.dialog.open}
-                        cancel={() => { this.state.dialog.open = false }}
-                        ok={this.okDialog.bind(this)}
-                        title={this.state.dialog.title}
-                        content={this.state.dialog.content}
-                    />
-                     <Snackbar
-                            anchorOrigin={{ vertical: 'top', horizontal: 'center'  }}
-                            open={this.state.isTip}
-                            onClose={() => {
-                                this.setState({ isTip: false });
-                            }}
-                            ContentProps={{
-                                'aria-describedby': 'message-id',
-                            }}
-                            message={<span id="message-id">{this.state.errorMsg}</span>}
-                        />
+                     <ModalTag config={this.modal.getConfig()} />
                 </Grid>
             </Layout>
 
