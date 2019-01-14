@@ -34,18 +34,21 @@ let classes = {
 export default class Index extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            server: '',
+            userName: '',
+            password: "",
+            remember: false,
+            errorMsg: "",
+            redirectToReferrer: false,
+            isTip: false,
+            servers: [],
+            autoFocus:false
+        };
+        this.remember = this.remember.bind(this);
     }
 
-    state = {
-        server: '',
-        userName: '',
-        password: "",
-        remember: false,
-        errorMsg: "",
-        redirectToReferrer: false,
-        isTip: false,
-        servers: []
-    };
+    
 
     handleServerMgr = () => {
         Router.push("/servermgr");
@@ -69,18 +72,26 @@ export default class Index extends React.Component {
         if (jsonString) {
             jsonObjects = JSON.parse(jsonString);
         }
+        if (Array.isArray(jsonObjects)) {
+            this.state.servers=jsonObjects;
+        }
+        let _this = this;
+        this.setState({ isTip: false });
+        setTimeout(() => {
+            _this.remember();
+        }, 100);
+    }
 
+    remember(){
         let rememberString = localStorage.getItem("remember");
         if (rememberString) {
             let rememberObjects = JSON.parse(rememberString);
             this.state.remember = true;
             this.state.userName = rememberObjects.name;
             this.state.server = rememberObjects.server;
+            this.state.autoFocus = true;
         }
-
-        if (Array.isArray(jsonObjects)) {
-            this.setState({ servers: jsonObjects });
-        }
+        this.setState({ isTip: false });
     }
 
     componentWillMount() {
@@ -175,7 +186,7 @@ export default class Index extends React.Component {
                             </FormControl>
                             <FormControl margin="normal" fullWidth>
                                 <InputLabel htmlFor="password">密码</InputLabel>
-                                <Input name="password" onChange={this.handleChange} value={this.state.password} type="password" id="password" />
+                                <Input name="password" onChange={this.handleChange} autoFocus={this.state.autoFocus} value={this.state.password} type="password" id="password" />
                             </FormControl>
                             <FormControlLabel
                                 control={<Checkbox name="remember" checked={this.state.remember} onChange={this.handleChangeCheckbox} color="primary" />}
