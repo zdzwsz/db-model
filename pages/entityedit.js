@@ -28,7 +28,8 @@ let classes = {
     }
 }
 
-const content='请输入服务名和表名，不能有特殊符号：@#￥%……&,默认服务名等于表名！'
+const setupEntityStr='请输入服务名和表名，不能有特殊符号：@#￥%……&！'
+const saveTipStr = "请先进行实体配置,再保存实体信息！"
 
 export default class entityedit extends React.Component {
     constructor(props) {
@@ -39,20 +40,15 @@ export default class entityedit extends React.Component {
 
         this.state = {
             name:entityName,
+            detail:"",
             entity:
             {
                 tableName: "",
                 fields: [
                     
                 ]
-            },
-            dialog: {
-                open: false,
-                content: content,
-                title: "",
-            },
-            isTip:false,
-            errorMsg:""
+            }
+           
         };
         this.modal = Modal.createModal(this);
     }
@@ -188,7 +184,7 @@ export default class entityedit extends React.Component {
 
     prepareSaveEntity() {
         if (this.state.name == "" || this.state.name == null) {
-            this.modal.alert("请先设置实体名/表名,再保存实体！");
+            this.modal.alert(saveTipStr);
         } else {
             this.saveEntity()
         }
@@ -208,12 +204,14 @@ export default class entityedit extends React.Component {
     showDialog() {
         //this.setState({ dialog: { open: true } });
         let _this = this;
-        let prompt = this.modal.prompt(content,
-            [{label:'请输入实体名',value:this.state.name},
-             {label:'请输入表名',value:this.state.entity.tableName}]);
+        let prompt = this.modal.prompt(setupEntityStr,
+            [{label:'请输入实体名(必填)',value:this.state.name},
+             {label:'实体描述(必填)',value:this.state.detail},
+             {label:'请输入表名(必填)',value:this.state.entity.tableName}]);
         prompt.then(function(values){
             _this.state.name = values[0].value;
-            _this.state.entity.tableName = values[1].value;
+            _this.state.detail = values[1].value;
+            _this.state.entity.tableName = values[2].value;
         })
     }
 
@@ -224,7 +222,7 @@ export default class entityedit extends React.Component {
                 <Grid item xs={12} style={classes.GridStyle}>
                     <Paper style={classes.PaperStyle}>
                         <div style={{ width: 950 }}>
-                            <Button onClick={this.showDialog.bind(this)} variant="outlined" color="secondary" style={{ margin: 2 }}>设置实体名/表名</Button>
+                            <Button onClick={this.showDialog.bind(this)} variant="outlined" color="secondary" style={{ margin: 2 }}>实体配置</Button>
                             <Button onClick={this.addRow.bind(this)} variant="outlined" color="secondary" style={{ margin: 2 }}>新增行</Button>
                             <Button onClick={this.deleteRow.bind(this)} variant="outlined" color="secondary" style={{ margin: 2 }}>删除行</Button>
                             <Button onClick={this.prepareSaveEntity.bind(this)} variant="outlined" color="secondary" style={{ margin: 2 }}>保存</Button>

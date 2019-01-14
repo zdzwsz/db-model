@@ -117,10 +117,10 @@ export default class servermgr extends React.Component {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>序号</TableCell>
-                                    <TableCell >名称</TableCell>
-                                    <TableCell >ip地址</TableCell>
-                                    <TableCell >端口</TableCell>
+                                    <TableCell style={{ width: 80 }}>序号</TableCell>
+                                    <TableCell style={{ width: 200 }}>名称</TableCell>
+                                    <TableCell style={{ width: 180 }}>ip地址</TableCell>
+                                    <TableCell style={{ width: 80 }}>端口</TableCell>
                                     <TableCell >删除</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -131,7 +131,7 @@ export default class servermgr extends React.Component {
                                             <TableCell>
                                                 {i + 1}
                                             </TableCell>
-                                            <TableCell >{row.name}</TableCell>
+                                            <TableCell padding="checkbox">{row.name}</TableCell>
                                             <TableCell >{row.ip}</TableCell>
                                             <TableCell >{row.port}</TableCell>
                                             <TableCell ><Button variant="contained" component="span" type="button" onClick={_this.deleteServer.bind(this, i)}>删除</Button></TableCell>

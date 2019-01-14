@@ -15,6 +15,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import fetch from 'isomorphic-unfetch';
 import Snackbar from '@material-ui/core/Snackbar';
 import Router from 'next/router';
+import { encryptionParameter } from "../util/UserUtil";
 
 let localStorage = require("../util/Storage").localStorage();
 
@@ -26,17 +27,13 @@ let classes = {
         padding: 30, alignItems: 'center', width: 450, display: 'flex', flexDirection: 'column'
     },
     divStyle: {
-        paddingLeft: 130, display: 'flex', flexDirection: 'row'
+        paddingLeft: 110, display: 'flex', flexDirection: 'row'
     }
 }
 
 export default class Index extends React.Component {
     constructor(props) {
         super(props);
-    }
-
-    static getItem(){
-        return localStorage.getItem("servers")
     }
 
     state = {
@@ -46,8 +43,8 @@ export default class Index extends React.Component {
         remember: false,
         errorMsg: "",
         redirectToReferrer: false,
-        isTip:false,
-        servers:[]
+        isTip: false,
+        servers: []
     };
 
     handleServerMgr = () => {
@@ -58,48 +55,98 @@ export default class Index extends React.Component {
         this.setState({ [event.target.name]: event.target.value });
     };
 
+    handleChangeCheckbox = event => {
+        this.setState({ [event.target.name]: event.target.checked });
+    };
+
     handleClose = () => {
         this.setState({ isTip: false });
     };
 
-    componentWillMount() {
-        let jsonString = Index.getItem("servers");
+    init() {
+        let jsonString = localStorage.getItem("servers");
         let jsonObjects = []
         if (jsonString) {
             jsonObjects = JSON.parse(jsonString);
         }
-        if (Array.isArray(jsonObjects)) {
-            this.setState({servers:jsonObjects}); 
+
+        let rememberString = localStorage.getItem("remember");
+        if (rememberString) {
+            let rememberObjects = JSON.parse(rememberString);
+            this.state.remember = true;
+            this.state.userName = rememberObjects.name;
+            this.state.server = rememberObjects.server;
         }
+
+        if (Array.isArray(jsonObjects)) {
+            this.setState({ servers: jsonObjects });
+        }
+    }
+
+    componentWillMount() {
+        this.init();
+    }
+
+    componentWillReceiveProps(nextProps) {
+        this.init();
     }
 
     login = event => {
         let _this = this;
-        let url = "http://" + this.state.server + "/auth"
+        let host = "http://" + this.state.server;
+        let url = host + "/metaAuth"
+        if (this.state.server == "") {
+            this.setState({ errorMsg: "请选择服务器/或者配置服务器", isTip: true })
+            return;
+        }
+        if (this.state.userName == "") {
+            this.setState({ errorMsg: "请输入用户名", isTip: true })
+            return;
+        }
+        if (this.state.password == "") {
+            this.setState({ errorMsg: "请输入密码", isTip: true })
+            return;
+        }
         let data = "name=" + this.state.userName + "&password=" + this.state.password;
+
         fetch(url, {
             'method': 'POST',
             'mode': 'cors',
-            'headers': new Headers({
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }),
+            'headers': {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                "x-access-token": "start"
+            },
             'body': data
         }).then(function (response) {
             return response.json();
         }).then(function (json) {
             if (json.success) {
-              sessionStorage.setItem("user", JSON.stringify({name:_this.state.userName,token:json.token}));
-              Router.push("/main");
+                sessionStorage.setItem("user", JSON.stringify({ name: _this.state.userName }));
+                let parameter = encryptionParameter(host, json.token);
+                document.cookie = "parameter=" + parameter;
+                console.log(_this.state.remember);
+                if (_this.state.remember == true) {
+                    localStorage.setItem("remember", JSON.stringify({ name: _this.state.userName, server: _this.state.server }))
+                } else {
+                    localStorage.removeItem("remember");
+                }
+                Router.push({
+                    pathname: "/main",
+                    asPath: "/main"
+                });
             } else {
-                _this.setState({ errorMsg: json.message, isTip:true})
+                _this.setState({ errorMsg: json.message, isTip: true })
             }
         }).catch(function (e) {
+            _this.setState({ errorMsg: "服务器访问错误，请检查服务地址配置或者服务未启动", isTip: true })
             console.log(e);
         });
     }
 
+
+
     render() {
-       
+
         return (
             <Grid container spacing={24} style={{ paddingTop: 100 }}>
                 <Grid item xs={12} style={classes.GridStyle}>
@@ -115,11 +162,11 @@ export default class Index extends React.Component {
                                 <InputLabel htmlFor="server">服务器地址</InputLabel>
                                 <Select id="server" name="server" onChange={this.handleChange} value={this.state.server}>
                                     {this.state.servers.map(function (row, i) {
-                                        let url = row.ip+":"+row.port
-                                    return (
-                                        <MenuItem key={i} value={url}>{row.name}</MenuItem>
-                                    );
-                                })}
+                                        let url = row.ip + ":" + row.port
+                                        return (
+                                            <MenuItem key={i} value={url}>{row.name}</MenuItem>
+                                        );
+                                    })}
                                 </Select>
                             </FormControl>
                             <FormControl margin="normal" fullWidth>
@@ -131,7 +178,7 @@ export default class Index extends React.Component {
                                 <Input name="password" onChange={this.handleChange} value={this.state.password} type="password" id="password" />
                             </FormControl>
                             <FormControlLabel
-                                control={<Checkbox value="remember" color="primary" />}
+                                control={<Checkbox name="remember" checked={this.state.remember} onChange={this.handleChangeCheckbox} color="primary" />}
                                 label="记住服务器/用户名"
                             />
                             <div style={classes.divStyle}>
@@ -140,7 +187,7 @@ export default class Index extends React.Component {
                             </div>
                         </form>
                         <Snackbar
-                            anchorOrigin={{ vertical: 'top', horizontal: 'center'  }}
+                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
                             open={this.state.isTip}
                             onClose={this.handleClose}
                             ContentProps={{

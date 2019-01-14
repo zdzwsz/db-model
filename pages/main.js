@@ -6,15 +6,16 @@ import Router from 'next/router';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import AddIcon from '@material-ui/icons/AddCircle';
-import Divider from '@material-ui/core/Divider';
 import Layout from './layout';
 import Category from '../component/Category';
 import {Modal,ModalTag} from '../component/Modal';
-
+import Avatar from '@material-ui/core/Avatar';
+import AppStore from '../util/AppStore';
 
 const classes = {
     chipClass: {
-        margin: 2
+        margin: 2,
+        minWidth:90
     },
     CardClass: {
         margin: 8,
@@ -32,31 +33,15 @@ export default class main extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            services: [
-                {
-                    name: 'petshop',
-                    disabled: true,
-                    entitys: [
-                        { name: 'pet', detail: '宠物' },
-                        { name: 'shopcar', detail: '购物车' }
-                    ],
-                    apis: [
-                        { name: 'add', detail: '增加商品' },
-                        { name: 'total', detail: '统计商品' }
-                    ]
-                },
-                {
-                    name: 'flowershop',
-                    disabled: true,
-                    entitys: [
-                        { name: 'flower', detail: '花' }
-                    ],
-                    apis: []
-                }
-            ]
+            services: props.json.data||[]
         };
         this.modal = Modal.createModal(this);
     }
+
+
+    static async getInitialProps({req,query}) {
+        return AppStore.getAllData(req);
+     }
 
 
 
@@ -68,9 +53,6 @@ export default class main extends React.Component {
         alert('You clicked the Chip.');
     }
 
-    handleClose = () => {
-        this.setState({ isTip: false });
-    }
 
     onAddCategory(name) {
         let newObject = { name: name, disabled: false, entitys: [], apis: [] }
@@ -129,6 +111,17 @@ export default class main extends React.Component {
         });
     }
 
+    editAPI(category,apiName) {
+        if(apiName=="new"){
+            apiName="";
+        }
+        Router.push({
+            pathname: "/apiedit",
+            query: { 'category': category, entityName:apiName},
+            asPath: "/apiedit"
+        });
+    }
+
     handleDeleteEntity(serviceName, entityName) {
         let services = this.state.services;
         let _this = this;
@@ -164,20 +157,20 @@ export default class main extends React.Component {
                                     <Chip label="新增实体" style={classes.chipClass} onDelete={_this.editEntity.bind(_this, service.name, 'new')} onClick={_this.editEntity.bind(_this, service.name, 'new')}
                                         deleteIcon={<AddIcon />} />
                                     {service.entitys.map(function (entity, j) {
-                                        let name = entity.name + ":" + entity.detail;
+                                        let name = entity.name;
                                         let key = i + ":" + j;
                                         return (
-                                            <Chip key={key} label={name} onClick={_this.editEntity.bind(_this, service.name, entity.name)} style={classes.chipClass} onDelete={_this.handleDeleteEntity.bind(_this, service.name, entity.name)} />
+                                            <Chip key={key} label={name} onClick={_this.editEntity.bind(_this, service.name, entity.name)} style={classes.chipClass} onDelete={_this.handleDeleteEntity.bind(_this, service.name, entity.name)} avatar={<Avatar>ENT</Avatar>} />
                                         )
                                     })}
                                     <Typography color="textSecondary">服务 API：</Typography>
-                                    <Chip label="新增 API" style={classes.chipClass} onDelete={_this.handleDelete}
-                                        deleteIcon={<AddIcon />} />
+                                    <Chip label="新增 API" style={classes.chipClass} onClick={_this.editAPI.bind(_this, service.name, "new")} onDelete={_this.editAPI.bind(_this, service.name, "new")}
+                                        deleteIcon={<AddIcon />}  />
                                     {service.apis.map(function (api, j) {
-                                        let name = api.name + ":" + api.detail;
+                                        let name = api.name;
                                         let key = i + ":" + j;
                                         return (
-                                            <Chip key={key} label={name} style={classes.chipClass} onDelete={_this.handleDelete} />
+                                            <Chip key={key} label={name} style={classes.chipClass} onClick={_this.editAPI.bind(_this, service.name, api.name)} onDelete={_this.handleDelete} avatar={<Avatar>API</Avatar>} />
                                         )
                                     })}
                                 </CardContent>
