@@ -16,7 +16,7 @@ import FieldEdit from '../component/FieldEdit';
 import SelectEdit from '../component/SelectEdit';
 import SubTable from '../component/SubTable';
 import {Modal,ModalTag} from '../component/Modal';
-
+import AppStore from '../util/AppStore';
 
 
 let classes = {
@@ -31,30 +31,30 @@ let classes = {
 const setupEntityStr='请输入服务名和表名，不能有特殊符号：@#￥%……&！'
 const saveTipStr = "请先进行实体配置,再保存实体信息！"
 
-export default class entityedit extends React.Component {
+
+
+export default class EntityEdit extends React.Component {
     constructor(props) {
         super(props);
-        //console.log(props.query)
-        this.category = props.query.category;
-        let entityName = props.query.entityName||"";
-
+        let data ={fields:[]};
+        if(props.json){
+            data = props.json.data
+        }
+        this.category = EntityEdit.category;
+        let entityName = EntityEdit.entityName||"";
+        console.log(this.category+"|"+entityName);
         this.state = {
             name:entityName,
             detail:"",
-            entity:
-            {
-                tableName: "",
-                fields: [
-                    
-                ]
-            }
-           
+            entity: data
         };
         this.modal = Modal.createModal(this);
     }
 
-    static async getInitialProps({query}) {
-        return {query}
+    static async getInitialProps({query,req}) {
+        EntityEdit.category = query.category;
+        EntityEdit.entityName = query.entityName;
+        return AppStore.getEntity(req,EntityEdit.category,EntityEdit.entityName);
      }
 
     
@@ -301,3 +301,5 @@ export default class entityedit extends React.Component {
         )
     }
 }
+EntityEdit.category = "";
+EntityEdit.entityName ="";

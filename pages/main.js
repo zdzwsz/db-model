@@ -40,7 +40,8 @@ export default class main extends React.Component {
 
 
     static async getInitialProps({req,query}) {
-        return AppStore.getAllData(req);
+        let json = AppStore.getAllData(req);
+        return json;
      }
 
 
