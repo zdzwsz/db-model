@@ -136,7 +136,7 @@ export default class SubTable extends React.Component {
                                         <FieldEdit id={i} type="number" name="dot" value={field.dot} onChange={_this.handleFieldEdit.bind(_this)} />
                                     </TableCell>
                                     <TableCell align="center" style={{ width: 70 }} padding="none">
-                                        <Switch id={i + ""} name="notnull" checked={field.notnull} onChange={_this.handleSwitch.bind(_this)} />
+                                        <Switch id={i + ""} name="notNullable" checked={field.notNullable} onChange={_this.handleSwitch.bind(_this)} />
                                     </TableCell>
                                     <TableCell align="center" style={{ width: 70 }} padding="none">
                                         <Switch id={i + ""} name="isprimary" checked={field.isprimary} onChange={_this.handleSwitch.bind(_this)} />

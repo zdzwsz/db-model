@@ -15,11 +15,20 @@ let AppStore = {
         }else{
             return {fields:[]}
         }
+    },
+    putNewEntity(category,name,data){
+       let url = BASE + "/" + category + "/" + name + "/add"
+       return FetchData(null,url,data);
+    },
+    deleteEntity(category,name){
+        let url = BASE + "/" + category + "/" + name + "/delete"
+        return FetchData(null,url);
     }
 }
 
 async function FetchData(req, path, parameters) {
     let parameterStr = getCookie((req ? req.headers["cookie"] : document.cookie), "parameter");
+    let body = parameters ||{};
     if (parameterStr) {
         let parameter = decryptParameter(parameterStr);
         let url = parameter[0] + path;
@@ -27,9 +36,10 @@ async function FetchData(req, path, parameters) {
             'method': 'POST',
             'mode': 'cors',
             'headers': {
+                "Content-Type": "application/json",
                 'x-access-token': parameter[1]
             },
-            'body': {}
+            'body': JSON.stringify(body)
         })
         const json = await res.json()
         return {json}

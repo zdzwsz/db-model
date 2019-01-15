@@ -126,8 +126,11 @@ export default class main extends React.Component {
     handleDeleteEntity(serviceName, entityName) {
         let services = this.state.services;
         let _this = this;
-        this.modal.confirm("确定删除实体，删除后数据不能恢复，你确定吗？").then(
-            function () {
+        this.modal.confirm("确定删除实体，删除后数据不能恢复，你确定吗？")
+        .then(function(){
+            return AppStore.deleteEntity(serviceName,entityName);
+        })
+        .then(function (json) {
                 for (let i = 0; i < services.length; i++) {
                     if (services[i].name === serviceName) {
                         for(let j = 0 ;j<services[i].entitys.length;j++ ){

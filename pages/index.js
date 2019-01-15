@@ -48,8 +48,6 @@ export default class Index extends React.Component {
         this.remember = this.remember.bind(this);
     }
 
-    
-
     handleServerMgr = () => {
         Router.push("/servermgr");
     };

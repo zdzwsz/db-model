@@ -39,6 +39,7 @@ export default class EntityEdit extends React.Component {
         let data ={fields:[]};
         if(props.json){
             data = props.json.data
+            this.changeShowData(data);
         }
         this.category = EntityEdit.category;
         let entityName = EntityEdit.entityName||"";
@@ -51,9 +52,54 @@ export default class EntityEdit extends React.Component {
         this.modal = Modal.createModal(this);
     }
 
+    changeShowData(data){
+       let fields = data.fields;
+       for(let i = 0;i<fields.length;i++){
+          if(fields[i].name == data.primary){
+            fields[i].isprimary = true;
+          }
+          if(fields[i]["length"]){
+              let length = fields[i]["length"];
+              if(Array.isArray(length)){
+                  let l = length[0];
+                  let d = length[1];
+                  fields[i]["length"] = l;
+                  fields[i]["dot"] = d;
+              }
+          }
+          if(fields[i].type =="table"){
+              this.changeShowData(fields[i].relation);
+          }
+       }
+    }
+
+    changeSaveData(sdata,issub){
+        let data = sdata;
+        if(typeof(issub) =="undefined" || issub == false){
+            let data = JSON.parse(JSON.stringify(sdata));
+        }
+        let fields = data.fields;
+        for(let i = 0;i<fields.length;i++){
+           if(fields[i].isprimary = true){
+             data.primary = fields[i].name;
+           }
+           if(fields[i]["length"]){
+               let length = fields[i]["length"];
+               if(fields[i].type =="decimal" || fields[i].type =="float" ){
+                   fields[i]["length"] = [fields[i]["length"],fields[i]["dot"]];
+               }
+           }
+           if(fields[i].type =="table"){
+               this.changeSaveData(fields[i].relation,true);
+           }
+        }
+        return data;
+    }
+
     static async getInitialProps({query,req}) {
         EntityEdit.category = query.category;
         EntityEdit.entityName = query.entityName;
+        console.log(EntityEdit.category+"|"+EntityEdit.entityName);
         return AppStore.getEntity(req,EntityEdit.category,EntityEdit.entityName);
      }
 
@@ -97,7 +143,7 @@ export default class EntityEdit extends React.Component {
     addSubTableRow(i) {
         //console.log(this.state.entity.fields[i].relation.fields.length)
         let fields = this.state.entity.fields[i].relation.fields;
-        fields.push({ isnew: true, name: '', detail: '', type: '', length: 0, dot: 0, notnull: false, isprimary: false });
+        fields.push({ isnew: true, name: '', detail: '', type: '', length: 0, dot: 0, notNullable: false, isprimary: false });
         this.setState({ entity: this.state.entity });
     }
 
@@ -191,27 +237,27 @@ export default class EntityEdit extends React.Component {
     }
 
     saveEntity() {
-        console.log(this.state.entity);
+        let _this = this;
+        let data = this.changeSaveData(this.state.entity)
+        console.log(this.category+"|"+this.state.name);
+        let result = AppStore.putNewEntity(this.category,this.state.name,data);
+        result.then(function(res){
+           console.log(res);
+           if(res && res.json.code=="000"){
+              _this.modal.tip("保存成功");
+           } 
+        });
     }
 
-    okDialog(name,tableName) {
-        this.state.name = name;
-        this.state.entity.tableName = tableName;
-        this.state.dialog.open = false
-        //this.saveEntity()
-    }
 
     showDialog() {
-        //this.setState({ dialog: { open: true } });
         let _this = this;
         let prompt = this.modal.prompt(setupEntityStr,
             [{label:'请输入实体名(必填)',value:this.state.name},
-             {label:'实体描述(必填)',value:this.state.detail},
              {label:'请输入表名(必填)',value:this.state.entity.tableName}]);
         prompt.then(function(values){
             _this.state.name = values[0].value;
-            _this.state.detail = values[1].value;
-            _this.state.entity.tableName = values[2].value;
+            _this.state.entity.tableName = values[1].value;
         })
     }
 
@@ -284,7 +330,7 @@ export default class EntityEdit extends React.Component {
                                                     <TableCell align="center" padding="none">
                                                         <FieldEdit id={i} type="number" name="dot" value={field['dot']} onChange={_this.onChangeKey.bind(_this)} />
                                                     </TableCell>
-                                                    <TableCell align="center" padding="none"><Switch id={i + ""} name="notnull" checked={field.notnull} onChange={_this.onChangeSwitch.bind(_this)} /></TableCell>
+                                                    <TableCell align="center" padding="none"><Switch id={i + ""} name="notNullable" checked={field.notNullable} onChange={_this.onChangeSwitch.bind(_this)} /></TableCell>
                                                     <TableCell align="center" padding="none"><Switch id={i + ""} name="isprimary" checked={field.isprimary} onChange={_this.onChangeSwitch.bind(_this)} /></TableCell>
                                                 </TableRow>
                                             )
