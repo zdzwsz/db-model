@@ -79,8 +79,11 @@ export default class EntityEdit extends React.Component {
             let data = JSON.parse(JSON.stringify(sdata));
         }
         let fields = data.fields;
-        for(let i = 0;i<fields.length;i++){
-           if(fields[i].isprimary = true){
+        for(let i = fields.length-1;i>-1;i--){
+           if(fields[i].isnew == true && fields[i].delete ==true){
+             fields.splice(i,1);
+           }
+           if(fields[i].isprimary == true){
              data.primary = fields[i].name;
            }
            if(fields[i]["length"]){
@@ -99,7 +102,6 @@ export default class EntityEdit extends React.Component {
     static async getInitialProps({query,req}) {
         EntityEdit.category = query.category;
         EntityEdit.entityName = query.entityName;
-        console.log(EntityEdit.category+"|"+EntityEdit.entityName);
         return AppStore.getEntity(req,EntityEdit.category,EntityEdit.entityName);
      }
 
@@ -107,7 +109,7 @@ export default class EntityEdit extends React.Component {
 
     addRow() {
         let fields = this.state.entity.fields;
-        fields.push({ isnew: true, name: '', detail: '', type: '', length: 0, dot: 0, notnull: false, isprimary: false });
+        fields.push({ isnew: true, name: '', detail: '', type: '', length: 0, dot: 0, notNullable: false, isprimary: false });
         this.setState({ entity: this.state.entity });
     }
 
@@ -239,13 +241,16 @@ export default class EntityEdit extends React.Component {
     saveEntity() {
         let _this = this;
         let data = this.changeSaveData(this.state.entity)
-        console.log(this.category+"|"+this.state.name);
+        console.log(data);
         let result = AppStore.putNewEntity(this.category,this.state.name,data);
         result.then(function(res){
-           console.log(res);
            if(res && res.json.code=="000"){
               _this.modal.tip("保存成功");
-           } 
+           }else if(res){
+              _this.modal.tip(res.message);
+           }else{
+             _this.modal.tip("未知错误！");
+           }
         });
     }
 

@@ -130,7 +130,8 @@ export default class Index extends React.Component {
             return response.json();
         }).then(function (json) {
             if (json.success) {
-                sessionStorage.setItem("user", JSON.stringify({ name: _this.state.userName }));
+                let serverinfo = _this.getServerName(_this.state.server);
+                sessionStorage.setItem("user", JSON.stringify({ name: _this.state.userName,server:serverinfo.name }));
                 let parameter = encryptionParameter(host, json.token);
                 document.cookie = "parameter=" + parameter;
                 console.log(_this.state.remember);
@@ -139,6 +140,7 @@ export default class Index extends React.Component {
                 } else {
                     localStorage.removeItem("remember");
                 }
+                
                 Router.push({
                     pathname: "/main",
                     asPath: "/main"
@@ -152,7 +154,14 @@ export default class Index extends React.Component {
         });
     }
 
-
+    getServerName(ip){
+        let servers = this.state.servers;
+       for(let i =0;i<servers.length;i++){
+           if(servers[i].ip+":"+servers[i].port === ip){
+               return servers[i];
+           }
+       }
+    }
 
     render() {
 

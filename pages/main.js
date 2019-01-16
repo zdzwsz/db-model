@@ -8,14 +8,14 @@ import CardContent from '@material-ui/core/CardContent';
 import AddIcon from '@material-ui/icons/AddCircle';
 import Layout from './layout';
 import Category from '../component/Category';
-import {Modal,ModalTag} from '../component/Modal';
+import { Modal, ModalTag } from '../component/Modal';
 import Avatar from '@material-ui/core/Avatar';
 import AppStore from '../util/AppStore';
 
 const classes = {
     chipClass: {
         margin: 2,
-        minWidth:90
+        minWidth: 90
     },
     CardClass: {
         margin: 8,
@@ -33,16 +33,16 @@ export default class main extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            services: props.json.data||[]
+            services: props.json.data || []
         };
         this.modal = Modal.createModal(this);
     }
 
 
-    static async getInitialProps({req,query}) {
+    static async getInitialProps({ req, query }) {
         let json = AppStore.getAllData(req);
         return json;
-     }
+    }
 
 
 
@@ -76,7 +76,7 @@ export default class main extends React.Component {
                 }
             }
         }
-        
+
     }
 
     onChangeCategory(name, status) {
@@ -94,31 +94,31 @@ export default class main extends React.Component {
                 service.disabled = status;
                 _this.setState({ services: services });
             })
-        }else{
+        } else {
             service.disabled = status;
             this.setState({ services: services });
         }
 
     }
 
-    editEntity(category,entityName) {
-        if(entityName=="new"){
-            entityName="";
+    editEntity(category, entityName) {
+        if (entityName == "new") {
+            entityName = "";
         }
         Router.push({
             pathname: "/entityedit",
-            query: { 'category': category, entityName:entityName},
+            query: { 'category': category, entityName: entityName },
             asPath: "/entityedit"
         });
     }
 
-    editAPI(category,apiName) {
-        if(apiName=="new"){
-            apiName="";
+    editAPI(category, apiName) {
+        if (apiName == "new") {
+            apiName = "";
         }
         Router.push({
             pathname: "/apiedit",
-            query: { 'category': category, entityName:apiName},
+            query: { 'category': category, entityName: apiName },
             asPath: "/apiedit"
         });
     }
@@ -127,24 +127,32 @@ export default class main extends React.Component {
         let services = this.state.services;
         let _this = this;
         this.modal.confirm("确定删除实体，删除后数据不能恢复，你确定吗？")
-        .then(function(){
-            return AppStore.deleteEntity(serviceName,entityName);
-        })
-        .then(function (json) {
-                for (let i = 0; i < services.length; i++) {
-                    if (services[i].name === serviceName) {
-                        for(let j = 0 ;j<services[i].entitys.length;j++ ){
-                            if(services[i].entitys[j].name = entityName){
-                                services[i].entitys.splice(j,1);
-                                _this.setState({services:services});
-                                break;
+            .then(function () {
+                return AppStore.deleteEntity(serviceName, entityName);
+            })
+            .then(function (json) {
+                if (json && json.json && json.json.code === "000") {
+                    for (let i = 0; i < services.length; i++) {
+                        if (services[i].name === serviceName) {
+                            for (let j = 0; j < services[i].entitys.length; j++) {
+                                if (services[i].entitys[j].name == entityName) {
+                                    services[i].entitys.splice(j, 1);
+                                    break;
+                                }
                             }
+                            break;
                         }
-                        break;
                     }
+                    _this.setState({ services: services });
+                }
+                else if(json && json.json){
+                    _this.modal.alert("删除实体("+entityName+")失败:"+json.json.message);
+                }
+                else{
+                    _this.modal.alert("删除实体("+entityName+")失败,未知错误！");
                 }
             }
-        )
+            )
     }
 
     render() {
@@ -162,17 +170,17 @@ export default class main extends React.Component {
                                         deleteIcon={<AddIcon />} />
                                     {service.entitys.map(function (entity, j) {
                                         let name = entity.name;
-                                        let key = i + ":" + j;
+                                        let key = i + ":" + name;
                                         return (
                                             <Chip key={key} label={name} onClick={_this.editEntity.bind(_this, service.name, entity.name)} style={classes.chipClass} onDelete={_this.handleDeleteEntity.bind(_this, service.name, entity.name)} avatar={<Avatar>ENT</Avatar>} />
                                         )
                                     })}
                                     <Typography color="textSecondary">服务 API：</Typography>
                                     <Chip label="新增 API" style={classes.chipClass} onClick={_this.editAPI.bind(_this, service.name, "new")} onDelete={_this.editAPI.bind(_this, service.name, "new")}
-                                        deleteIcon={<AddIcon />}  />
+                                        deleteIcon={<AddIcon />} />
                                     {service.apis.map(function (api, j) {
                                         let name = api.name;
-                                        let key = i + ":" + j;
+                                        let key = i + ":" + name;
                                         return (
                                             <Chip key={key} label={name} style={classes.chipClass} onClick={_this.editAPI.bind(_this, service.name, api.name)} onDelete={_this.handleDelete} avatar={<Avatar>API</Avatar>} />
                                         )

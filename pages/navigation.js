@@ -18,7 +18,7 @@ export default class navigation extends React.Component {
     }
 
     state = {
-        user: { name: "" }
+        user: { name: "",server:"" }
     }
 
     componentWillMount() {
@@ -52,8 +52,9 @@ export default class navigation extends React.Component {
                                 <AccountCircle />
                             </IconButton>
                             <Typography variant="h6" color="inherit" >
-                                {this.state.user.name}
+                                {this.state.user.name} ( {this.state.user.server} )
                             </Typography>
+                           
                         </Toolbar>
                     </AppBar>
                 </Grid>  
