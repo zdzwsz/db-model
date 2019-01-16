@@ -97,7 +97,6 @@ class ModalTag extends React.Component {
     handleChange(event) {
         let input = this.state.inputs[event.target.name]
         input.value = event.target.value
-        this.setState({ inputs: this.state.inputs })
       }
 
     handleOk = () => {
@@ -179,7 +178,7 @@ class ModalTag extends React.Component {
                                 label={input.label}
                                 fullWidth
                                 onChange={_this.handleChange.bind(_this)}
-                                value={input.value}
+                                defaultValue={input.value}
                             />
                             )
                         })}
