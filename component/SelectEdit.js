@@ -31,6 +31,10 @@ export default class SelectEdit extends React.Component {
        
     }
 
+    handleFocus(event){
+        this.setState({ status: 'edit' })
+    }
+
     render() {
         if (this.state.status == 'view') {
             return (
@@ -38,6 +42,7 @@ export default class SelectEdit extends React.Component {
                     <Typography style={{ fontSize: 14, marginTop: 4 }} >
                         {this.state.value}
                     </Typography>
+                    <input type="button" onFocus={this.handleFocus.bind(this)} style={{border:0,width:0,height:0,backgroundColor:0,opacity: 0.2}}></input>
                 </div>
             )
         } else if (this.state.status == 'edit') {

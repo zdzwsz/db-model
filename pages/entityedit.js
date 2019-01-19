@@ -37,24 +37,39 @@ export default class EntityEdit extends React.Component {
     constructor(props) {
         super(props);
         let data ={fields:[]};
+        this.category = EntityEdit.category;
+        let entityName = EntityEdit.entityName||"";
         if(props.json){
             data = props.json.data
             this.changeShowData(data);
+            this.category =props.json.category;
+            entityName = props.json.entityName;
         }
-        this.category = EntityEdit.category;
-        let entityName = EntityEdit.entityName||"";
-        console.log(this.category+"|"+entityName);
+        
         this.state = {
             name:entityName,
             detail:"",
             entity: data
         };
+        //console.log(this.category+"|"+entityName+"|"+ (this.state.name==""));
+        if(this.state.name=="" || typeof(this.state.name)=="undefined"){
+            this.status = "new";
+        }else{
+            this.status = "edit";
+        }
         this.modal = Modal.createModal(this);
     }
 
     changeShowData(data){
        let fields = data.fields;
        for(let i = 0;i<fields.length;i++){
+          if(typeof(fields[i].isnew)!="undefined"){
+             delete fields[i].isnew;
+          }
+          if(typeof(fields[i].delete)!="undefined"){
+            delete fields[i].delete;
+          }
+          fields[i].key = fields[i].name;
           if(fields[i].name == data.primary){
             fields[i].isprimary = true;
           }
@@ -73,44 +88,105 @@ export default class EntityEdit extends React.Component {
        }
     }
 
-    changeSaveData(sdata,issub){
-        let data = sdata;
-        if(typeof(issub) =="undefined" || issub == false){
-            let data = JSON.parse(JSON.stringify(sdata));
-        }
+    changeSaveData(data,status){
         let fields = data.fields;
         for(let i = fields.length-1;i>-1;i--){
            if(fields[i].isnew == true && fields[i].delete ==true){
-             fields.splice(i,1);
+              fields.splice(i,1);
+              continue;
+           }
+           if(fields[i].name =="" || fields[i].type ==""){
+              fields.splice(i,1);
+              continue;
            }
            if(fields[i].isprimary == true){
              data.primary = fields[i].name;
            }
            if(fields[i]["length"]){
-               let length = fields[i]["length"];
+               //let length = fields[i]["length"];
                if(fields[i].type =="decimal" || fields[i].type =="float" ){
                    fields[i]["length"] = [fields[i]["length"],fields[i]["dot"]];
                }
            }
            if(fields[i].type =="table"){
-               this.changeSaveData(fields[i].relation,true);
+               if(fields[i].relation.tableName=="" || typeof(fields[i].relation.tableName) =="undefined"){
+                 fields[i].relation.tableName=fields[i].name
+               }
+               this.changeSaveData(fields[i].relation,status);
+           }
+           if(status === "new"){
+               delete fields[i].isnew;
            }
         }
         return data;
     }
 
+    checkSaveFormat(data){
+        if(data.name =="" || data.tableName =="" || data.fields.length ==0){
+            return false;
+        }
+        for(let i =0;i<data.fields.length;i++){
+            if(data.fields[i].type !="table"){
+                return true;
+            }
+        }
+        return false;  
+    }
+
+    saveEntity() {
+        let _this = this;
+        let data = JSON.parse(JSON.stringify(this.state.entity));
+        data = this.changeSaveData(data,this.status)
+        //console.log(data);
+        if(!this.checkSaveFormat(data)){
+            this.modal.alert("请添加实体字段，再保存数据");
+            return;
+        }
+        let result = null;
+        this.modal.wait("正在保存数据，请等待......");
+        if(this.status == "new"){
+            result = AppStore.putNewEntity(this.category,this.state.name,data);
+        }
+        else{
+            result = AppStore.updateEntity(this.category,this.state.name,data);
+        }
+        result.then(function(res){
+           if(res && res.json && res.json.code=="000"){
+              _this.modal.tip("保存成功");
+              _this.changeShowData(data);
+              _this.status="edit";
+              _this.setState({entity:data});
+              //console.log();
+           }else if(res && res.json){
+              _this.modal.tip(res.json.message);
+           }else{
+             _this.modal.tip("未知错误！");
+           }
+        });
+    }
+
+
     static async getInitialProps({query,req}) {
         EntityEdit.category = query.category;
         EntityEdit.entityName = query.entityName;
-        return AppStore.getEntity(req,EntityEdit.category,EntityEdit.entityName);
+        let result = AppStore.getEntity(req,query.category,query.entityName);
+        //console.log(result);
+        if(result instanceof Promise){
+            result = await result.then();
+            result.json.category = query.category;
+            result.json.entityName = query.entityName;
+        }else{
+            result.json.category = query.category;
+            result.json.entityName = query.entityName;
+        }
+        return result;
      }
-
-    
 
     addRow() {
         let fields = this.state.entity.fields;
         fields.push({ isnew: true, name: '', detail: '', type: '', length: 0, dot: 0, notNullable: false, isprimary: false });
         this.setState({ entity: this.state.entity });
+        console.log(this.state);
     }
 
     selectRow = event => {
@@ -163,9 +239,9 @@ export default class EntityEdit extends React.Component {
         //console.log(i+":"+j+":"+name+":"+value);
         let field = this.state.entity.fields[i].relation.fields[j];
         field[name] = value;
+        console.log(this.state.entity);
         if (name == "type") {
             this.defaultType(field);
-            
         }
         this.setState({ entity: this.state.entity });
     }
@@ -177,6 +253,7 @@ export default class EntityEdit extends React.Component {
     }
 
     onChangeKey(i, name, value) {
+        //console.log(i+":"+name+":"+value);
         let field = this.state.entity.fields[i];
         field[name] = value;
         if (name == "type") {
@@ -237,23 +314,6 @@ export default class EntityEdit extends React.Component {
             this.saveEntity()
         }
     }
-
-    saveEntity() {
-        let _this = this;
-        let data = this.changeSaveData(this.state.entity)
-        console.log(data);
-        let result = AppStore.putNewEntity(this.category,this.state.name,data);
-        result.then(function(res){
-           if(res && res.json.code=="000"){
-              _this.modal.tip("保存成功");
-           }else if(res){
-              _this.modal.tip(res.message);
-           }else{
-             _this.modal.tip("未知错误！");
-           }
-        });
-    }
-
 
     showDialog() {
         let _this = this;

@@ -19,7 +19,7 @@ function decryptParameter(base64String){
     return str.split(","); 
 }
 
-export {encryptionParameter,decryptParameter,getCookie}
+
 
 var Base64 = {
 	_keyStr: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
@@ -93,7 +93,8 @@ var Base64 = {
 		var n = 0;
         var r =0;
         var c1 =0;
-        var c2 = 0;
+		var c2 = 0;
+		var c3 = 0;
 		while (n < e.length) {
 			r = e.charCodeAt(n);
 			if (r < 128) {
@@ -113,3 +114,5 @@ var Base64 = {
 		return t
 	}
 }
+
+export {encryptionParameter,decryptParameter,getCookie,Base64}

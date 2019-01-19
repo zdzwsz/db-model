@@ -13,7 +13,7 @@ let AppStore = {
             let url = BASE + "/" + category + "/" + name + "/get"
             return FetchData(req, url);
         }else{
-            return {fields:[]}
+            return {json:{data:{fields:[]}}};
         }
     },
     putNewEntity(category,name,data){
@@ -23,7 +23,27 @@ let AppStore = {
     deleteEntity(category,name){
         let url = BASE + "/" + category + "/" + name + "/delete"
         return FetchData(null,url);
-    }
+    },
+    updateEntity(category,name,data){
+        let url = BASE + "/" + category + "/" + name + "/update"
+        return FetchData(null,url,data);
+    },
+    getApiCode(req, category, apiname){
+       if(apiname){
+        let url = BASE + "/" + category +  "/gcode"
+        return FetchData(req,url,{name:apiname});
+       }else{
+           return {json:{data:null}};
+       }
+    },
+    putNewApiCode(category,name,data){
+        let url = BASE + "/" + category + "/scode"
+        return FetchData(null,url,data);
+    },
+    deleteApiCode(category,apiname){
+        let url = BASE + "/" + category + "/dcode"
+        return FetchData(null,url,{name:apiname});
+    },
 }
 
 async function FetchData(req, path, parameters) {

@@ -8,11 +8,14 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import InfoIcon from '@material-ui/icons/Info';
 import Snackbar from '@material-ui/core/Snackbar';
 import TextField from '@material-ui/core/TextField';
+import Slide from '@material-ui/core/Slide';
+import CircularProgress from '@material-ui/core/CircularProgress';
+
 class Modal {
     constructor(view) {
         this.view = view
         this.close = this.close.bind(this);
-        this.config = { open: false, title: "", message: "", type: "", close: this.close,inputs:[] }
+        this.config = { open: false, title: "", message: "", type: "", close: this.close, inputs: [] }
         this.view.state.modalConfig = this.config;
 
     }
@@ -52,6 +55,10 @@ class Modal {
 
     tip(message) {
         this.view.setState({ modalConfig: { open: true, message: message, type: "tip" } });
+    }
+
+    wait(message) {
+        this.view.setState({ modalConfig: { open: true, message: message, type: "wait" } });
     }
 
     getConfig() {
@@ -97,7 +104,7 @@ class ModalTag extends React.Component {
     handleChange(event) {
         let input = this.state.inputs[event.target.name]
         input.value = event.target.value
-      }
+    }
 
     handleOk = () => {
         this.setState({ open: false });
@@ -105,11 +112,11 @@ class ModalTag extends React.Component {
             this.state.close();
         }
         if (this.state.onOk) {
-            if(this.state.type=="confirm"){
+            if (this.state.type == "confirm") {
                 this.state.onOk(true);
-            }else if(this.state.type=="prompt"){
+            } else if (this.state.type == "prompt") {
                 this.state.onOk(this.state.inputs);
-            }else{
+            } else {
                 this.state.onOk()
             }
         }
@@ -125,7 +132,7 @@ class ModalTag extends React.Component {
 
 
     componentWillReceiveProps(nextProps) {
-        let inputs=nextProps.config.inputs||[];
+        let inputs = nextProps.config.inputs || [];
         this.setState({
             open: nextProps.config.open,
             title: nextProps.config.title,
@@ -133,8 +140,12 @@ class ModalTag extends React.Component {
             type: nextProps.config.type,
             onCanel: nextProps.config.onCanel,
             onOk: nextProps.config.onOk,
-            inputs:inputs
+            inputs: inputs
         });
+    }
+
+    Transition(props) {
+        return <Slide direction="down" {...props} />;
     }
 
     render() {
@@ -151,7 +162,22 @@ class ModalTag extends React.Component {
                     message={<span id="message-id">{this.state.message}</span>}
                 />
             )
-        } else {
+        } else if (this.state.type == "wait") {
+            return (
+                <Dialog
+                    fullScreen
+                    open={this.state.open}
+                    TransitionComponent={this.Transition}
+                    style={{opacity:0.85}}
+                >
+                    <DialogContent style={{backgroundColor:'#999',display:'flex',alignItems: 'center',justifyContent: 'center',paddingBottom:60}}>
+                         <CircularProgress style={{padding:5}} /> 
+                         {this.state.message}
+                    </DialogContent>
+                </Dialog>
+            )
+        }
+        else {
             return (
                 <Dialog
                     open={this.state.open}
@@ -168,18 +194,18 @@ class ModalTag extends React.Component {
                         <DialogContentText id="alert-dialog-description">
                             {this.state.message}
                         </DialogContentText>
-                        {this.state.inputs.map(function(input,i){
-                            return(
+                        {this.state.inputs.map(function (input, i) {
+                            return (
                                 <TextField
-                                key={i}
-                                autoFocus
-                                margin="dense"
-                                name={i+""}
-                                label={input.label}
-                                fullWidth
-                                onChange={_this.handleChange.bind(_this)}
-                                defaultValue={input.value}
-                            />
+                                    key={i}
+                                    autoFocus
+                                    margin="dense"
+                                    name={i + ""}
+                                    label={input.label}
+                                    fullWidth
+                                    onChange={_this.handleChange.bind(_this)}
+                                    defaultValue={input.value}
+                                />
                             )
                         })}
                     </DialogContent>

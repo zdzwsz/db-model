@@ -35,7 +35,9 @@ export default class SubTable extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         this.setState({
-            relation: nextProps.relation
+            relation: nextProps.relation,
+            name:nextProps.name,
+            detail:nextProps.detail
         });
     }
 

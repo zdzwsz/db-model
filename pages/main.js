@@ -118,7 +118,7 @@ export default class main extends React.Component {
         }
         Router.push({
             pathname: "/apiedit",
-            query: { 'category': category, entityName: apiName },
+            query: { 'category': category, apiName: apiName },
             asPath: "/apiedit"
         });
     }
@@ -128,31 +128,65 @@ export default class main extends React.Component {
         let _this = this;
         this.modal.confirm("确定删除实体，删除后数据不能恢复，你确定吗？")
             .then(function () {
-                return AppStore.deleteEntity(serviceName, entityName);
-            })
-            .then(function (json) {
-                if (json && json.json && json.json.code === "000") {
-                    for (let i = 0; i < services.length; i++) {
-                        if (services[i].name === serviceName) {
-                            for (let j = 0; j < services[i].entitys.length; j++) {
-                                if (services[i].entitys[j].name == entityName) {
-                                    services[i].entitys.splice(j, 1);
-                                    break;
+                AppStore.deleteEntity(serviceName, entityName).then(function (json) {
+                    if (json && json.json && json.json.code === "000") {
+                        for (let i = 0; i < services.length; i++) {
+                            if (services[i].name === serviceName) {
+                                for (let j = 0; j < services[i].entitys.length; j++) {
+                                    if (services[i].entitys[j].name == entityName) {
+                                        services[i].entitys.splice(j, 1);
+                                        break;
+                                    }
                                 }
+                                break;
                             }
-                            break;
                         }
+                        _this.modal.tip("删除实体（"+ entityName +"）成功！");
+                        _this.setState({ services: services });
                     }
-                    _this.setState({ services: services });
+                    else if (json && json.json) {
+                        _this.modal.alert("删除实体(" + entityName + ")失败:" + json.json.message);
+                    }
+                    else {
+                        _this.modal.alert("删除实体(" + entityName + ")失败,未知错误！");
+                    }
                 }
-                else if(json && json.json){
-                    _this.modal.alert("删除实体("+entityName+")失败:"+json.json.message);
+                )
+            })
+
+    }
+
+    handleDeleteApi(serviceName, apiName) {
+        let services = this.state.services;
+        let _this = this;
+        this.modal.confirm("确定删除API，删除后数据不能恢复，你确定吗？")
+            .then(function () {
+                AppStore.deleteApiCode(serviceName, apiName).then(function (json) {
+                    if (json && json.json && json.json.code === "000") {
+                        for (let i = 0; i < services.length; i++) {
+                            if (services[i].name === serviceName) {
+                                for (let j = 0; j < services[i].apis.length; j++) {
+                                    if (services[i].apis[j].name == apiName) {
+                                        services[i].apis.splice(j, 1);
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        _this.modal.tip("删除api（"+ apiName +"）成功！");
+                        _this.setState({ services: services });
+                    }
+                    else if (json && json.json) {
+                        _this.modal.alert("删除实体(" + apiName + ")失败:" + json.json.message);
+                    }
+                    else {
+                        _this.modal.alert("删除实体(" + apiName + ")失败,未知错误！");
+                    }
                 }
-                else{
-                    _this.modal.alert("删除实体("+entityName+")失败,未知错误！");
-                }
-            }
-            )
+                )
+            })
+
     }
 
     render() {
@@ -182,7 +216,7 @@ export default class main extends React.Component {
                                         let name = api.name;
                                         let key = i + ":" + name;
                                         return (
-                                            <Chip key={key} label={name} style={classes.chipClass} onClick={_this.editAPI.bind(_this, service.name, api.name)} onDelete={_this.handleDelete} avatar={<Avatar>API</Avatar>} />
+                                            <Chip key={key} label={name} style={classes.chipClass} onClick={_this.editAPI.bind(_this, service.name, api.name)} onDelete={_this.handleDeleteApi.bind(_this, service.name, name)} avatar={<Avatar>API</Avatar>} />
                                         )
                                     })}
                                 </CardContent>
