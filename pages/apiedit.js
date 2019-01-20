@@ -77,15 +77,30 @@ export default class ApiEdit extends React.Component {
         this.state.code = value;
     }
 
-    saveApi() {
+    saveApi(newcode) {
+        if(typeof(newcode)!="undefined" && typeof(newcode) =="string"){
+            this.state.code = newcode;
+        }
         let code = this.state.code;
         let _this = this;
         try{
            let name = eval(code);
+           let result= null;
+           console.l
            if(name.length >0){
-             this.apiName = name;
              code = Base64.encode(code);
-             AppStore.putNewApiCode(this.category,this.apiName,{name:name,code:code}).then(function(res){
+             if(this.status =="new"){
+                this.apiName = name;
+                result= AppStore.putNewApiCode(this.category,this.apiName,code);
+             }else{
+                if(this.apiName != name){
+                    _this.modal.alert("以前的API名称和现在的API名称不一样，不能更改API名称！");
+                    return;
+                }else{
+                    result= AppStore.updateApiCode(this.category,this.apiName,code);
+                }
+             }
+             result.then(function(res){
                 if(res && res.json && res.json.code=="000"){
                     _this.modal.tip("保存成功");
                     _this.status="edit";
@@ -96,6 +111,8 @@ export default class ApiEdit extends React.Component {
                    _this.modal.tip("未知错误！");
                  }
              })
+           }else{
+               _this.modal.tip("请定义API名称！");
            }
         }catch(e){
             Modal.alert("服务代码编写有误："+e.message);

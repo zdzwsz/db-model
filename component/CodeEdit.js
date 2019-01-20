@@ -8,7 +8,7 @@ import FormatIndentIncreaseIcon from '@material-ui/icons/FormatIndentIncrease';
 import RedoIcon from '@material-ui/icons/Redo';
 import UndoIcon from '@material-ui/icons/Undo';
 
-
+let localStorage = require("../util/Storage").localStorage();
 export default class CodeEdit extends React.Component {
     constructor(props) {
         super(props);
@@ -46,6 +46,13 @@ export default class CodeEdit extends React.Component {
                             e.stopPropagation();
                         }
                     })
+                    let fontsize = localStorage.getItem("fontsize");
+                    if(fontsize){
+                        try{
+                            _this.fontSize = parseInt(fontsize);
+                            editor.updateOptions({ 'fontSize': _this.fontSize });
+                        }catch(e){}
+                    }
                 } else {
                     i++;
                     _this.setValue(i);
@@ -76,7 +83,7 @@ export default class CodeEdit extends React.Component {
 
     formatDocument() {
         var action = this.getEditor().getAction("editor.action.formatDocument");
-        action.run().done();
+        action.run();
     }
 
     magnifyFont(type) {
@@ -89,6 +96,7 @@ export default class CodeEdit extends React.Component {
             if (this.fontSize < 12) this.fontSize = 12;
             this.getEditor().updateOptions({ 'fontSize': this.fontSize });
         }
+        localStorage.setItem("fontsize",this.fontSize);
     }
 
     getEditor() {

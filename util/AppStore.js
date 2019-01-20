@@ -8,6 +8,14 @@ let AppStore = {
     getAllData(req) {
         return FetchData(req, ALL_URL);
     },
+    addService(category){
+        let url = BASE + "/" + category + "/add";
+        return FetchData(null, url);
+    },
+    deleteService(category){
+        let url = BASE + "/" + category + "/delete";
+        return FetchData(null, url);
+    },
     getEntity(req, category, name) {
         if(name){
             let url = BASE + "/" + category + "/" + name + "/get"
@@ -38,7 +46,10 @@ let AppStore = {
     },
     putNewApiCode(category,name,data){
         let url = BASE + "/" + category + "/scode"
-        return FetchData(null,url,data);
+        return FetchData(null,url,{name:name,code:data});
+    },
+    updateApiCode(category,name,data){
+        return this.putNewApiCode(category,name,data);
     },
     deleteApiCode(category,apiname){
         let url = BASE + "/" + category + "/dcode"

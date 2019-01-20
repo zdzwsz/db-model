@@ -56,9 +56,25 @@ export default class main extends React.Component {
 
 
     onAddCategory(name) {
-        let newObject = { name: name, disabled: false, entitys: [], apis: [] }
-        this.state.services.push(newObject);
-        this.setState({ services: this.state.services });
+        for(let i=0;i<this.state.services.length;i++){
+            if(this.state.services[i].name == name){
+                this.modal.alert("服务已经存在，请重新创建！。");
+                return;
+            }
+        }
+        let _this = this;
+        AppStore.addService(name).then(function(res){
+            if(res && res.json && res.json.code =="000"){
+                let newObject = { name: name, disabled: false, entitys: [], apis: [] }
+                _this.state.services.push(newObject);
+                _this.setState({ services: _this.state.services });
+                _this.modal.tip("创建服务成功");
+            }else if(res && res.json ){
+                _this.modal.alert("创建服务失败："+ res.json.message);
+            }else{
+                _this.modal.alert("创建服务失败：不知名原因！");
+            }
+        })
     }
 
     onDeleteCategory(name) {
@@ -68,8 +84,18 @@ export default class main extends React.Component {
             if (services[i].name === name) {
                 if (services[i].entitys.length == 0 && services[i].apis.length == 0) {
                     this.modal.confirm("确定删除服务吗？，系统不进行备份，删除后服务无法恢复！").then(function () {
-                        services.splice(i, 1);
-                        _this.setState({ services: services });
+                        AppStore.deleteService(name).then(function(res){
+                            if(res && res.json && res.json.code =="000"){
+                                services.splice(i, 1);
+                                _this.setState({ services: services });
+                                _this.modal.tip("删除服务成功");
+                            }else if(res && res.json ){
+                                _this.modal.alert("删除服务失败："+ res.json.message);
+                            }else{
+                                _this.modal.alert("删除服务失败：不知名原因！");
+                            }
+                        })
+                        
                     })
                 } else {
                     this.modal.alert("先清空实体和API，然后才能删除服务！。");
@@ -195,10 +221,13 @@ export default class main extends React.Component {
             <Layout>
                 {this.state.services.map(function (service, i) {
                     return (
-                        <Grid key={i} item xs={4} style={classes.GriditemClass}>
-                            <Card key={i} style={classes.CardClass}>
+                        <Grid key={service.name} item xs={4} style={classes.GriditemClass}>
+                            <Card key={service.name} style={classes.CardClass}>
                                 <CardContent>
-                                    <Category label={service.name} disabled={service.disabled} onDelete={_this.onDeleteCategory.bind(_this)} onChange={_this.onChangeCategory.bind(_this)} />
+                                    <Category label={service.name} disabled={service.disabled}
+                                              onDelete={_this.onDeleteCategory.bind(_this)} 
+                                              onChange={_this.onChangeCategory.bind(_this)}  
+                                              />
                                     <Typography color="textSecondary">服务实体：</Typography>
                                     <Chip label="新增实体" style={classes.chipClass} onDelete={_this.editEntity.bind(_this, service.name, 'new')} onClick={_this.editEntity.bind(_this, service.name, 'new')}
                                         deleteIcon={<AddIcon />} />
