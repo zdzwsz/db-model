@@ -1,8 +1,9 @@
 import { decryptParameter, getCookie } from "../util/UserUtil";
 import fetch from 'isomorphic-unfetch';
+import setup from "../pages/setup";
 
 const ALL_URL = "/meta/all";
-const BASE = "/meta/";
+const BASE = "/meta";
 
 let AppStore = {
     getAllData(req) {
@@ -55,6 +56,10 @@ let AppStore = {
         let url = BASE + "/" + category + "/dcode"
         return FetchData(null,url,{name:apiname});
     },
+    setupServer(data){
+        let url = "/setup/config"
+        return FetchData(null,url,data);
+    }
 }
 
 async function FetchData(req, path, parameters) {

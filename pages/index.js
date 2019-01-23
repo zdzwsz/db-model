@@ -134,19 +134,25 @@ export default class Index extends React.Component {
                 sessionStorage.setItem("user", JSON.stringify({ name: _this.state.userName,server:serverinfo.name }));
                 let parameter = encryptionParameter(host, json.token);
                 document.cookie = "parameter=" + parameter;
-                console.log(_this.state.remember);
+                //console.log(_this.state.remember);
                 if (_this.state.remember == true) {
                     localStorage.setItem("remember", JSON.stringify({ name: _this.state.userName, server: _this.state.server }))
                 } else {
                     localStorage.removeItem("remember");
                 }
-                
-                Router.push({
-                    pathname: "/main",
-                    asPath: "/main"
-                });
+                let message = json.message;
+                if(message == "init"){
+                    Router.push({pathname: "/setup",});
+                }else{
+                    Router.push({pathname: "/main",});
+                }
+               
             } else {
-                _this.setState({ errorMsg: json.message, isTip: true })
+                let message = json.message;
+                if(message == "init"){
+                    message="服务器需要初始化，请使用superman登陆"
+                }
+                _this.setState({ errorMsg: message, isTip: true })
             }
         }).catch(function (e) {
             _this.setState({ errorMsg: "服务器访问错误，请检查服务地址配置或者服务未启动", isTip: true })
