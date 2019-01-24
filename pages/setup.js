@@ -92,7 +92,7 @@ export default class setup extends React.Component {
             let config = this.config;
             for( let key in config){
                 if(config[key]==""){
-                    this.modal.alert(this.detail[key]+"没有输入，请输入！");
+                    this.modal.alert('初始化所有字段都需要填写，目前检查到'+this.detail[key]+"没有输入，请输入！");
                     return;
                 }
             }
@@ -163,16 +163,12 @@ export default class setup extends React.Component {
         const { activeStep } = this.state;
         let _this = this;
         return (
-            <Layout>
+            <Layout init = "true">
                 <div style={{ width: '95%', display: 'flex', justifyContent: 'center', flexDirection: 'column', margin: 20 }}>
                     <Stepper activeStep={activeStep}>
                         {steps.map((label, index) => {
                             const props = {};
                             const labelProps = {};
-                            if (this.isStepOptional(index)) {
-                                labelProps.optional = <Typography variant="caption">Optional</Typography>;
-                            }
-                           
                             return (
                                 <Step key={label} {...props}>
                                     <StepLabel {...labelProps}>{label}</StepLabel>

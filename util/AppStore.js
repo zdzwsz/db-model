@@ -59,6 +59,10 @@ let AppStore = {
     setupServer(data){
         let url = "/setup/config"
         return FetchData(null,url,data);
+    },
+    modifyPwd(data){
+        let url = "/setup/pwd"
+        return FetchData(null,url,data);
     }
 }
 

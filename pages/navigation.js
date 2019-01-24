@@ -15,11 +15,13 @@ import Router from 'next/router';
 export default class navigation extends React.Component {
     constructor(props) {
         super(props);
+        this.state = {
+            user: { name: "",server:"" }
+        }
+        this.state.init = props.init;
     }
 
-    state = {
-        user: { name: "",server:"" }
-    }
+    
 
     componentWillMount() {
         let str = sessionStorage.getItem("user");
@@ -30,11 +32,28 @@ export default class navigation extends React.Component {
     }
 
     handleLogout = () => {
-        console.log("logout")
         Router.push("/");
     };
 
+    handleMain = () => {
+        Router.push("/main");
+    };
+
+    handlePassword = () => {
+        Router.push("/password");
+    };
+
     render() {
+        let statButton = "";
+        let modifyPassword = "";
+        if(!this.state.init){
+            statButton = ( 
+            <Button color="inherit" onClick={this.handleMain}>首页</Button>
+            );
+            modifyPassword = ( 
+                <Button color="inherit" onClick={this.handlePassword}>修改密码</Button>
+            );
+        }
         return (
                 <Grid item xs={12} >
                     <AppBar position="static">
@@ -45,8 +64,8 @@ export default class navigation extends React.Component {
                             <Typography variant="h6" color="inherit" style={{ flexGrow: 1 }}>
                                 数据服务建模
                             </Typography>
-                            <Button color="inherit">服务统计</Button>
-                            <Button color="inherit">修改密码</Button>
+                            {statButton}
+                            {modifyPassword}
                             <Button onClick={this.handleLogout} color="inherit">登出系统</Button>
                             <IconButton aria-haspopup="true" color="inherit">
                                 <AccountCircle />
