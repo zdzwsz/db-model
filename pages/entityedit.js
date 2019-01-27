@@ -186,7 +186,7 @@ export default class EntityEdit extends React.Component {
         let fields = this.state.entity.fields;
         fields.push({ isnew: true, name: '', detail: '', type: '', length: 0, dot: 0, notNullable: false, isprimary: false });
         this.setState({ entity: this.state.entity });
-        console.log(this.state);
+        //console.log(this.state);
     }
 
     selectRow = event => {
@@ -239,7 +239,7 @@ export default class EntityEdit extends React.Component {
         //console.log(i+":"+j+":"+name+":"+value);
         let field = this.state.entity.fields[i].relation.fields[j];
         field[name] = value;
-        console.log(this.state.entity);
+        //console.log(this.state.entity);
         if (name == "type") {
             this.defaultType(field);
         }

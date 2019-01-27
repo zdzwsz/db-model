@@ -117,14 +117,27 @@ export default class main extends React.Component {
         let _this = this;
         if (status == false) {
             this.modal.confirm("确定停止服务吗？停止后，API停止调用，可能导致依赖的系统无法运行！").then(function () {
-                service.disabled = status;
-                _this.setState({ services: services });
+                AppStore.stopServer(name).then(function(res){
+                    if(res && res.json && res.json.code =="000"){
+                    service.disabled = status;
+                    _this.setState({ services: services });
+                    _this.modal.tip("停止服务成功");
+                    }else{
+                        _this.modal.tip("停止服务失败");
+                    }
+                })
             })
         } else {
-            service.disabled = status;
-            this.setState({ services: services });
+            AppStore.startServer(name).then(function(res){
+                if(res && res.json && res.json.code =="000"){
+                    service.disabled = status;
+                    _this.setState({ services: services });
+                    _this.modal.tip("激活服务成功");
+                }else{
+                    _this.modal.tip("激活服务失败");
+                }
+            })
         }
-
     }
 
     editEntity(category, entityName) {

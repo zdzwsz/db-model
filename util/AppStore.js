@@ -17,6 +17,14 @@ let AppStore = {
         let url = BASE + "/" + category + "/delete";
         return FetchData(null, url);
     },
+    stopServer(category){
+        let url = BASE + "/" + category + "/stop";
+        return FetchData(null,url);
+    },
+    startServer(category){
+        let url = BASE + "/" + category + "/start";
+        return FetchData(null,url);
+    },
     getEntity(req, category, name) {
         if(name){
             let url = BASE + "/" + category + "/" + name + "/get"
@@ -63,7 +71,8 @@ let AppStore = {
     modifyPwd(data){
         let url = "/setup/pwd"
         return FetchData(null,url,data);
-    }
+    },
+    
 }
 
 async function FetchData(req, path, parameters) {

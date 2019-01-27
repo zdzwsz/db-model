@@ -87,7 +87,7 @@ export default class Category extends React.Component {
                 <div>
                     <Chip icon={<StorageIcon />} style={{ margin: 4 }} label={this.state.label} color="primary" variant="outlined" onDelete={this.handleDelete.bind(this)} />
                     <div style={{ float: 'right' }}>
-                        <Switch value="disabled" name ="disabled" checked={this.state.disabled} onChange={this.handleSwitchChange} />停用/启用
+                        <Switch value="disabled" name ="disabled" checked={this.state.disabled} onChange={this.handleSwitchChange} />停用/激活
                     </div>
                 </div>
             )
